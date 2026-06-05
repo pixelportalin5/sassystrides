@@ -1,104 +1,17 @@
-import { useEffect, useRef } from 'react';
-import { useBanners } from '../context/BannersContext';
-import { isRenderableBanner } from '../services/bannerService';
+import { AdGrid2, InlineBanner } from './EditorialAds';
 
-const AdBanner = ({ adId, variant = 'default', format = 'billboard-1170', nested = false }) => {
-  const bannerRef = useRef(null);
-  const { getBannerById } = useBanners();
-  const banner = getBannerById(adId);
+const AdBanner = ({ adId }) => <InlineBanner adId={adId} />;
 
-  useEffect(() => {
-    const el = bannerRef.current;
-
-    if (!el) {
-      return;
-    }
-
-    console.log('Banner Layout', adId, {
-      width: el.offsetWidth,
-      height: el.offsetHeight,
-    });
-
-    const rect = el.getBoundingClientRect();
-    console.log('Banner rect', adId, {
-      top: rect.top,
-      left: rect.left,
-      width: rect.width,
-      height: rect.height,
-      bottom: rect.bottom,
-      visible: rect.height > 0 && rect.width > 0,
-    });
-  }, [adId, banner?.html]);
-
-  if (!isRenderableBanner(banner)) {
-    return null;
-  }
-
-  console.log('Rendering banner', banner.id);
-
-  const isSideCard = variant === 'side-card';
-  const formatClass = isSideCard ? 'ad-banner-format-side-card' : `ad-banner-format-${format}`;
-
-  return (
-    <aside
-      ref={bannerRef}
-      className={`ad-banner ${formatClass} ${nested ? 'ad-banner-nested' : 'editorial-container ad-banner-break'}`.trim()}
-      data-ad-id={banner.id}
-      data-ad-shortcode={banner.shortcode}
-      aria-label="Advertisement"
-    >
-      <div className={`ad-banner-slot ${isSideCard ? 'ad-banner-side-card' : 'ad-banner-leaderboard'}`}>
-        <div className="ad-banner-trigger">
-          <div className="ad-banner-frame">
-            <div dangerouslySetInnerHTML={{ __html: banner.html }} />
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-};
-
-export const AdBannerPair = ({ adIds = [] }) => {
-  const { getBannerById } = useBanners();
-
-  if (!adIds.length) {
-    return null;
-  }
-
-  const validIds = adIds.filter((adId) => isRenderableBanner(getBannerById(adId)));
-
-  if (!validIds.length) {
-    return null;
-  }
-
-  if (validIds.length === 1) {
-    return (
-      <div className="ad-banner-pair editorial-container ad-banner-break">
-        <AdBanner adId={validIds[0]} variant="side-card" format="side-card" nested />
-      </div>
-    );
-  }
-
-  return (
-    <div className="ad-banner-pair editorial-container ad-banner-break">
-      {validIds.map((adId) => (
-        <AdBanner key={adId} adId={adId} variant="side-card" format="side-card" nested />
-      ))}
-    </div>
-  );
-};
+export const AdBannerPair = ({ adIds = [] }) => <AdGrid2 adIds={adIds} />;
 
 export const FeedAdSlot = ({ adId, className = '' }) => {
-  const { getBannerById } = useBanners();
-  const banner = getBannerById(adId);
-
-  if (!isRenderableBanner(banner)) {
+  if (!adId) {
     return null;
   }
 
   return (
-    <div className={`col-span-full py-2 ${className}`.trim()}>
-      <AdBanner adId={adId} />
+    <div className={`col-span-full ${className}`.trim()}>
+      <InlineBanner adId={adId} />
     </div>
   );
 };

@@ -1,6 +1,6 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import AdBanner, { AdBannerPair } from '../components/AdBanner';
+import { BannerUnit, GridAdCard, MagazineBanner } from '../components/EditorialAds';
 import BlogCard from '../components/BlogCard';
 import CategoryGrid from '../components/CategoryGrid';
 import FeaturedStories from '../components/FeaturedStories';
@@ -8,11 +8,9 @@ import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
 import InstagramGallery from '../components/InstagramGallery';
 import Navbar from '../components/Navbar';
-import { useBanners } from '../context/BannersContext';
-import { HOMEPAGE_BANNER_IDS, HOMEPAGE_BANNER_ORDER } from '../constants/bannerPlacements';
+import { HOMEPAGE_BANNER_IDS } from '../constants/bannerPlacements';
 import { usePosts } from '../hooks/usePosts';
 import { stripHtml } from '../services/wordpressApi';
-import { isRenderableBanner } from '../services/bannerService';
 
 const Newsletter = lazy(() => import('../components/Newsletter'));
 
@@ -29,7 +27,7 @@ const SectionHeader = ({ title, action = 'View All' }) => (
 );
 
 const MoodCarousel = ({ posts = [] }) => (
-  <section className="editorial-container py-6">
+  <section className="editorial-container editorial-section">
     <SectionHeader title="Browse By Style Mood" action="Swipe" />
     <div className="luxury-scrollbar flex gap-3 overflow-x-auto pb-3">
       {posts.slice(0, 12).map((post) => (
@@ -59,7 +57,62 @@ const MoodCarousel = ({ posts = [] }) => (
   </section>
 );
 
-const CategorySection = ({ name, posts = [], fallback = [] }) => {
+const SectionAdRow = ({ adIds = [], layout = 'pair' }) => {
+  const validAdIds = adIds.filter(Boolean);
+
+  if (!validAdIds.length) {
+    return null;
+  }
+
+  if (layout === 'full') {
+    return (
+      <div className="section-ad-row section-ad-row--full section-ad-row--edge">
+        <BannerUnit adId={validAdIds[0]} size="horizontal" />
+      </div>
+    );
+  }
+
+  if (layout === 'stack' && validAdIds.length >= 2) {
+    return (
+      <div className="section-ad-row section-ad-row--stack">
+        {validAdIds.slice(0, 2).map((adId) => (
+          <div key={adId} className="section-ad-row__slot">
+            <GridAdCard adId={adId} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (layout === 'pair' && validAdIds.length >= 2) {
+    return (
+      <div className="section-ad-row">
+        <div className="section-ad-row__slot">
+          <GridAdCard adId={validAdIds[0]} />
+        </div>
+        <div className="section-ad-row__slot">
+          <GridAdCard adId={validAdIds[1]} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="section-ad-row section-ad-row--single">
+      <div className="section-ad-row__slot">
+        <GridAdCard adId={validAdIds[0]} />
+      </div>
+    </div>
+  );
+};
+
+const CategorySectionWithAds = ({
+  name,
+  posts = [],
+  fallback = [],
+  adIds = [],
+  adLayout = 'pair',
+}) => {
   const sectionPosts =
     posts.filter((post) => post.categoryName.toLowerCase().includes(name.toLowerCase()))
       .slice(0, 4) || [];
@@ -70,13 +123,14 @@ const CategorySection = ({ name, posts = [], fallback = [] }) => {
   }
 
   return (
-    <section id={name.toLowerCase()} className="editorial-container py-5">
+    <section id={name.toLowerCase()} className="editorial-container editorial-section">
       <SectionHeader title={name} />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {displayPosts.map((post, index) => (
           <BlogCard key={`${name}-${post.id}`} post={post} variant="compact" index={index + 6} />
         ))}
       </div>
+      <SectionAdRow adIds={adIds} layout={adLayout} />
     </section>
   );
 };
@@ -87,7 +141,7 @@ const PostGridSection = ({ title, posts = [] }) => {
   }
 
   return (
-    <section className="editorial-container py-5">
+    <section className="editorial-container editorial-section">
       <SectionHeader title={title} />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {posts.map((post, index) => (
@@ -99,7 +153,7 @@ const PostGridSection = ({ title, posts = [] }) => {
 };
 
 const FashionCities = ({ posts = [] }) => (
-  <section className="editorial-container py-7">
+  <section className="editorial-container editorial-section">
     <SectionHeader title="Fashion Cities" action="View All Cities" />
     <div className="grid gap-px overflow-hidden border border-ink/10 bg-ink/10 md:grid-cols-5">
       {cities.map((city, index) => {
@@ -150,67 +204,6 @@ const BrandStrip = () => (
 
 const Home = () => {
   const { posts, categories, loading, error } = usePosts();
-  const { banners, getBannerById, isLoading: bannersLoading } = useBanners();
-
-  useEffect(() => {
-    if (bannersLoading) {
-      return;
-    }
-
-    console.log('Total banners from API:', banners.length);
-
-    const placedCount = HOMEPAGE_BANNER_ORDER.filter((adId) =>
-      isRenderableBanner(getBannerById(adId)),
-    ).length;
-
-    console.log('Homepage placements with banners:', placedCount, '/', HOMEPAGE_BANNER_ORDER.length);
-
-    const timer = window.setTimeout(() => {
-      const nodes = [...document.querySelectorAll('.ad-banner[data-ad-id]')];
-      console.log('Banner DOM count:', nodes.length);
-
-      nodes.forEach((el) => {
-        const id = el.getAttribute('data-ad-id');
-        const rect = el.getBoundingClientRect();
-
-        console.log('Banner rect', id, {
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height,
-          bottom: rect.bottom,
-          visible: rect.height > 0 && rect.width > 0,
-        });
-
-        let ancestor = el.parentElement;
-
-        while (ancestor && ancestor !== document.body) {
-          const styles = window.getComputedStyle(ancestor);
-          const collapsed =
-            styles.display === 'none' ||
-            styles.visibility === 'hidden' ||
-            Number(styles.opacity) === 0 ||
-            (styles.overflow === 'hidden' && ancestor.scrollHeight > ancestor.clientHeight + 2);
-
-          if (collapsed || ancestor.clientHeight === 0) {
-            console.warn('Banner ancestor issue', id, {
-              tag: ancestor.tagName,
-              className: ancestor.className,
-              display: styles.display,
-              overflow: styles.overflow,
-              height: styles.height,
-              maxHeight: styles.maxHeight,
-              clientHeight: ancestor.clientHeight,
-            });
-          }
-
-          ancestor = ancestor.parentElement;
-        }
-      });
-    }, 300);
-
-    return () => window.clearTimeout(timer);
-  }, [banners, bannersLoading, getBannerById]);
 
   if (!loading && (error || !posts.length)) {
     return (
@@ -235,87 +228,91 @@ const Home = () => {
     <div className="min-h-screen bg-ivory text-ink">
       <Navbar />
 
-      <main
-        className="homepage-editorial space-y-5 pb-20 lg:pb-8"
-        key={bannersLoading ? 'banners-loading' : `banners-${banners.length}`}
-      >
+      <main className="homepage-magazine pb-20 lg:pb-8">
         <HeroSection posts={posts.slice(0, 6)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterHero} format="billboard-1170" />
+        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.afterHero} />
 
         <CategoryGrid posts={posts.slice(3, 14)} categories={categories} />
+        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.afterCategoryGrid} />
 
-        <FeaturedStories posts={posts.slice(8, 14)} />
+        <div className="editorial-container editorial-section">
+          <FeaturedStories posts={posts.slice(8, 14)} />
+        </div>
+        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.afterFeaturedStories} />
 
         <MoodCarousel posts={posts.slice(0, 14)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterMood} format="leaderboard-728" />
+        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.afterMoodCarousel} />
 
-        <CategorySection
+        <CategorySectionWithAds
           name="Fashion"
           posts={posts}
           fallback={posts.slice(0, 4)}
+          adIds={[
+            HOMEPAGE_BANNER_IDS.fashionGridPrimary,
+            HOMEPAGE_BANNER_IDS.fashionGridSecondary,
+          ]}
+          adLayout="pair"
         />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterFashion} format="billboard-1170" />
 
-        <CategorySection
+        <CategorySectionWithAds
           name="Beauty"
           posts={posts}
           fallback={posts.slice(4, 8)}
-        />
-        <AdBannerPair
-          adIds={[
-            HOMEPAGE_BANNER_IDS.afterBeautyPrimary,
-            HOMEPAGE_BANNER_IDS.afterBeautySecondary,
-          ]}
+          adIds={[HOMEPAGE_BANNER_IDS.beautyGridSecondary]}
+          adLayout="full"
         />
 
-        <CategorySection
+        <CategorySectionWithAds
           name="Lifestyle"
           posts={posts}
           fallback={posts.slice(8, 12)}
-        />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterLifestyle} format="billboard-1170" />
-
-        <InstagramGallery posts={posts.slice(0, 12)} />
-        <AdBannerPair
-          adIds={[
-            HOMEPAGE_BANNER_IDS.afterInstagramPrimary,
-            HOMEPAGE_BANNER_IDS.afterInstagramSecondary,
-          ]}
+          adIds={[HOMEPAGE_BANNER_IDS.lifestyleGrid]}
+          adLayout="single"
         />
 
-        <CategorySection
+        <CategorySectionWithAds
           name="Trends"
           posts={posts}
           fallback={posts.slice(12, 16)}
+          adIds={[HOMEPAGE_BANNER_IDS.trendsGrid]}
+          adLayout="single"
         />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterTrends} format="super-970" />
 
-        <PostGridSection title="Editor's Picks" posts={posts.slice(4, 8)} />
-
-        <Suspense fallback={<div className="editorial-container h-64 border border-ink/10 bg-porcelain" />}>
-          <Newsletter />
-        </Suspense>
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterNewsletter} format="super-970" />
-
-        <PostGridSection title="Popular Stories" posts={posts.slice(8, 12)} />
-        <AdBannerPair
+        <CategorySectionWithAds
+          name="News"
+          posts={posts}
+          fallback={posts.slice(2, 6)}
           adIds={[
-            HOMEPAGE_BANNER_IDS.afterPopularPrimary,
-            HOMEPAGE_BANNER_IDS.afterPopularSecondary,
+            HOMEPAGE_BANNER_IDS.newsGridPrimary,
+            HOMEPAGE_BANNER_IDS.newsGridSecondary,
           ]}
         />
 
+        <PostGridSection title="Editor's Picks" posts={posts.slice(4, 8)} />
+
+        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.beforeFashionCities} />
         <FashionCities posts={posts.slice(10, 16)} />
 
-        <PostGridSection title="Luxury Picks" posts={posts.slice(12, 16)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterLuxuryPicks} format="panorama-1140" />
+        <Suspense
+          fallback={
+            <div className="editorial-container editorial-section h-64 border border-ink/10 bg-porcelain" />
+          }
+        >
+          <Newsletter
+            topAdId={HOMEPAGE_BANNER_IDS.newsletterTop}
+            rightAdId={HOMEPAGE_BANNER_IDS.newsletterRight}
+          />
+        </Suspense>
+
+        <InstagramGallery
+          posts={posts.slice(0, 8)}
+          gridAdId={HOMEPAGE_BANNER_IDS.beautyGridPrimary}
+        />
+        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.instagramBelow} />
 
         <BrandStrip />
       </main>
 
-      <AdBanner adId={HOMEPAGE_BANNER_IDS.beforeFooterPanorama} format="panorama-1140" />
-      <AdBanner adId={HOMEPAGE_BANNER_IDS.beforeFooterBillboard} format="billboard-1170" />
-      <AdBanner adId={HOMEPAGE_BANNER_IDS.footerTop} format="billboard-1170" />
       <Footer />
     </div>
   );

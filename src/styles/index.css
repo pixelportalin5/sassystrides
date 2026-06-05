@@ -304,118 +304,260 @@ img {
   background: #9b734c;
 }
 
-.homepage-editorial {
-  --ad-break-space: clamp(3rem, 6vw, 5rem);
+.editorial-section {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+.homepage-magazine > .editorial-container:first-of-type,
+.homepage-magazine > section:first-of-type {
+  padding-top: 0;
+}
+
+.magazine-banner {
+  padding-top: 28px;
+  padding-bottom: 28px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.magazine-banner .ad-banner,
+.magazine-banner .ad-banner__frame,
+.magazine-banner .ad-banner--horizontal {
+  width: 100%;
+  max-width: 100%;
+}
+
+.editorial-ad {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.editorial-ad--compact {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.editorial-ad--hero .ad-banner__frame,
+.editorial-ad--inline .ad-banner__frame {
+  width: 100%;
+  max-width: 1200px;
 }
 
 .ad-banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ad-banner__frame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.ad-banner__frame > div {
   display: block;
   width: 100%;
 }
 
-.ad-banner-break {
-  padding-block: var(--ad-break-space);
-}
-
-.ad-banner-slot {
-  display: block;
+.ad-banner--horizontal {
   width: 100%;
-  text-align: center;
+  max-width: 100%;
 }
 
-.ad-banner-break .ad-banner-slot {
-  margin: 0;
-}
-
-.ad-banner-leaderboard {
-  width: 100%;
-}
-
-.ad-banner-side-card {
-  border: 1px solid rgb(28 25 23 / 0.08);
-  background: #f7f0e6;
-  padding: 1.5rem;
-  display: block;
+.ad-banner--card,
+.ad-banner--compact {
   width: 100%;
   max-width: 300px;
-  margin-inline: auto;
 }
 
-.ad-banner-pair {
+.section-ad-row {
   display: grid;
-  width: 100%;
-  max-width: 720px;
-  margin-inline: auto;
-  gap: clamp(1.25rem, 3vw, 2rem);
+  gap: 1rem;
+  margin-top: 1rem;
   grid-template-columns: 1fr;
-  justify-items: center;
 }
 
 @media (min-width: 768px) {
-  .ad-banner-pair {
-    max-width: 680px;
-    grid-template-columns: repeat(2, minmax(0, 300px));
-    justify-content: center;
+  .section-ad-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.ad-banner-pair .ad-banner {
+.section-ad-row--single,
+.section-ad-row--stack,
+.section-ad-row--full {
+  grid-template-columns: 1fr;
+}
+
+.section-ad-row--stack .section-ad-row__slot,
+.section-ad-row--full {
+  min-height: 0;
+}
+
+.section-ad-row--stack .section-ad-row__slot {
+  min-height: auto;
+}
+
+.section-ad-row--full .ad-banner,
+.section-ad-row--full .ad-banner__frame {
+  width: 100%;
+  max-width: 100%;
+}
+
+.section-ad-row--edge {
+  width: calc(100vw - 32px);
+  max-width: calc(100vw - 32px);
+  margin-left: calc(50% - 50vw + 16px);
+  margin-right: calc(50% - 50vw + 16px);
+}
+
+.section-ad-row--edge .ad-banner,
+.section-ad-row--edge .ad-banner__frame {
+  width: 100%;
+  max-width: 100%;
+}
+
+.section-ad-row--edge img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.section-ad-row__slot {
+  display: flex;
+  min-height: 250px;
+  align-items: stretch;
+}
+
+.section-ad-row__slot .grid-ad-card {
+  width: 100%;
+  height: 100%;
+}
+
+.section-ad-row__slot img,
+.newsletter-top-banner img,
+.magazine-banner img {
+  object-fit: cover;
   width: 100%;
 }
 
-.ad-banner-pair .ad-banner-nested {
-  padding-block: 0;
+.newsletter-top-banner {
+  margin-bottom: 1rem;
 }
 
-.ad-banner-pair .ad-banner-side-card {
+.newsletter-top-banner .ad-banner,
+.newsletter-top-banner .ad-banner__frame {
+  width: 100%;
+  max-width: 100%;
+}
+
+.grid-ad-card {
+  display: flex;
+  min-height: 100%;
+  align-items: stretch;
+  border: 1px solid rgb(28 25 23 / 0.08);
+  background: #f7f0e6;
+  padding: 0.75rem;
+}
+
+.grid-ad-card .ad-banner {
+  width: 100%;
+}
+
+.grid-ad-card .ad-banner--card {
+  max-width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.grid-ad-card--inset {
+  aspect-ratio: 0.82 / 1;
+  overflow: hidden;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.grid-ad-card--inset-span2 {
+  aspect-ratio: 1.64 / 1;
+  overflow: hidden;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.grid-ad-card--inset .ad-banner,
+.grid-ad-card--inset .ad-banner--card,
+.grid-ad-card--inset-span2 .ad-banner,
+.grid-ad-card--inset-span2 .ad-banner--card {
+  max-width: 100%;
+  height: 100%;
+}
+
+.grid-ad-card--inset .ad-banner__frame,
+.grid-ad-card--inset img,
+.grid-ad-card--inset-span2 .ad-banner__frame,
+.grid-ad-card--inset-span2 img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 639px) {
+  .grid-ad-card--inset-span2 {
+    grid-column: span 2;
+    aspect-ratio: 1.64 / 1;
+  }
+}
+
+.newsletter-ad-slot .ad-banner {
+  width: 100%;
+}
+
+.newsletter-ad-slot .ad-banner--card {
+  max-width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.ad-grid {
+  width: 100%;
   margin-inline: auto;
 }
 
-.ad-banner-trigger {
-  display: block;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0;
-  border: 0;
-  background: transparent;
+.ad-grid--2 {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
 }
 
-.ad-banner-frame {
-  display: block;
-  width: 100%;
-  margin: 0 auto;
-  overflow: visible;
+.ad-grid--3 {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
 }
 
-.ad-banner-format-leaderboard-728 .ad-banner-frame {
-  max-width: 728px;
+@media (min-width: 768px) {
+  .ad-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ad-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-.ad-banner-format-billboard-1170 .ad-banner-frame {
-  max-width: 1170px;
-}
-
-.ad-banner-format-super-970 .ad-banner-frame {
-  max-width: 970px;
-}
-
-.ad-banner-format-panorama-1140 .ad-banner-frame {
-  max-width: 1140px;
-}
-
-.ad-banner-format-side-card .ad-banner-frame {
-  max-width: 300px;
-}
-
-.ad-banner-frame > div {
-  display: block;
-  width: 100%;
-}
-
-.ad-banner img,
-.ad-banner-frame img {
-  display: block;
+.ad-banner img {
   max-width: 100%;
   height: auto;
-  margin: 0 auto;
+  display: block;
+  margin-inline: auto;
 }
