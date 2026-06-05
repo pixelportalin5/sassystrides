@@ -236,74 +236,86 @@ const Home = () => {
       <Navbar />
 
       <main
-        className="space-y-5 pb-20 lg:pb-8"
+        className="homepage-editorial space-y-5 pb-20 lg:pb-8"
         key={bannersLoading ? 'banners-loading' : `banners-${banners.length}`}
       >
         <HeroSection posts={posts.slice(0, 6)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner1} />
+        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterHero} format="billboard-1170" />
 
         <CategoryGrid posts={posts.slice(3, 14)} categories={categories} />
 
         <FeaturedStories posts={posts.slice(8, 14)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner2} />
 
         <MoodCarousel posts={posts.slice(0, 14)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner3} />
+        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterMood} format="leaderboard-728" />
 
         <CategorySection
           name="Fashion"
           posts={posts}
           fallback={posts.slice(0, 4)}
         />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner4} />
+        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterFashion} format="billboard-1170" />
 
         <CategorySection
           name="Beauty"
           posts={posts}
           fallback={posts.slice(4, 8)}
         />
-        <AdBannerPair adIds={[HOMEPAGE_BANNER_IDS.banner5, HOMEPAGE_BANNER_IDS.banner6]} />
+        <AdBannerPair
+          adIds={[
+            HOMEPAGE_BANNER_IDS.afterBeautyPrimary,
+            HOMEPAGE_BANNER_IDS.afterBeautySecondary,
+          ]}
+        />
 
         <CategorySection
           name="Lifestyle"
           posts={posts}
           fallback={posts.slice(8, 12)}
         />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner7} />
+        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterLifestyle} format="billboard-1170" />
 
         <InstagramGallery posts={posts.slice(0, 12)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner8} />
+        <AdBannerPair
+          adIds={[
+            HOMEPAGE_BANNER_IDS.afterInstagramPrimary,
+            HOMEPAGE_BANNER_IDS.afterInstagramSecondary,
+          ]}
+        />
 
         <CategorySection
           name="Trends"
           posts={posts}
           fallback={posts.slice(12, 16)}
         />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner9} />
+        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterTrends} format="super-970" />
 
         <PostGridSection title="Editor's Picks" posts={posts.slice(4, 8)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner10} />
 
         <Suspense fallback={<div className="editorial-container h-64 border border-ink/10 bg-porcelain" />}>
           <Newsletter />
         </Suspense>
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner11} />
+        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterNewsletter} format="super-970" />
 
         <PostGridSection title="Popular Stories" posts={posts.slice(8, 12)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner12} />
+        <AdBannerPair
+          adIds={[
+            HOMEPAGE_BANNER_IDS.afterPopularPrimary,
+            HOMEPAGE_BANNER_IDS.afterPopularSecondary,
+          ]}
+        />
 
         <FashionCities posts={posts.slice(10, 16)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner13} />
 
         <PostGridSection title="Luxury Picks" posts={posts.slice(12, 16)} />
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner14} />
-
-        <AdBanner adId={HOMEPAGE_BANNER_IDS.banner15} />
+        <AdBanner adId={HOMEPAGE_BANNER_IDS.afterLuxuryPicks} format="panorama-1140" />
 
         <BrandStrip />
       </main>
 
-      <AdBanner adId={HOMEPAGE_BANNER_IDS.banner15b} />
+      <AdBanner adId={HOMEPAGE_BANNER_IDS.beforeFooterPanorama} format="panorama-1140" />
+      <AdBanner adId={HOMEPAGE_BANNER_IDS.beforeFooterBillboard} format="billboard-1170" />
+      <AdBanner adId={HOMEPAGE_BANNER_IDS.footerTop} format="billboard-1170" />
       <Footer />
     </div>
   );

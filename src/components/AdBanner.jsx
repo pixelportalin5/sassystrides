@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useBanners } from '../context/BannersContext';
 import { isRenderableBanner } from '../services/bannerService';
 
-const AdBanner = ({ adId, variant = 'default', nested = false }) => {
+const AdBanner = ({ adId, variant = 'default', format = 'billboard-1170', nested = false }) => {
   const bannerRef = useRef(null);
   const { getBannerById } = useBanners();
   const banner = getBannerById(adId);
@@ -37,11 +37,12 @@ const AdBanner = ({ adId, variant = 'default', nested = false }) => {
   console.log('Rendering banner', banner.id);
 
   const isSideCard = variant === 'side-card';
+  const formatClass = isSideCard ? 'ad-banner-format-side-card' : `ad-banner-format-${format}`;
 
   return (
     <aside
       ref={bannerRef}
-      className={`ad-banner ${nested ? '' : 'editorial-container'}`.trim()}
+      className={`ad-banner ${formatClass} ${nested ? 'ad-banner-nested' : 'editorial-container ad-banner-break'}`.trim()}
       data-ad-id={banner.id}
       data-ad-shortcode={banner.shortcode}
       aria-label="Advertisement"
@@ -71,13 +72,17 @@ export const AdBannerPair = ({ adIds = [] }) => {
   }
 
   if (validIds.length === 1) {
-    return <AdBanner adId={validIds[0]} variant="side-card" />;
+    return (
+      <div className="ad-banner-pair editorial-container ad-banner-break">
+        <AdBanner adId={validIds[0]} variant="side-card" format="side-card" nested />
+      </div>
+    );
   }
 
   return (
-    <div className="ad-banner-pair editorial-container">
+    <div className="ad-banner-pair editorial-container ad-banner-break">
       {validIds.map((adId) => (
-        <AdBanner key={adId} adId={adId} variant="side-card" nested />
+        <AdBanner key={adId} adId={adId} variant="side-card" format="side-card" nested />
       ))}
     </div>
   );
