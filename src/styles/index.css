@@ -304,17 +304,12 @@ img {
   background: #9b734c;
 }
 
-.ad-banner {
-  outline: 4px solid red !important;
-}
-
 .ad-banner-slot {
   margin-top: 60px;
   margin-bottom: 60px;
   display: flex;
   justify-content: center;
   width: 100%;
-  outline: 4px solid blue !important;
 }
 
 .ad-banner-leaderboard {
@@ -358,30 +353,13 @@ img {
   display: flex;
   justify-content: center;
   overflow: visible;
-  outline: 4px solid green !important;
 }
 
-.ad-banner-image {
+.ad-banner-frame img {
   width: auto;
   max-width: 100%;
   height: auto;
   object-fit: contain;
   display: block;
   margin: 0 auto;
-}
-
-.ad-banner-reserved {
-  display: block;
-  margin: 0 auto;
-  background: #f7f0e6;
-}
-
-.ad-banner-fallback {
-  display: grid;
-  place-items: center;
-  margin: 0 auto;
-  border: 1px solid rgb(28 25 23 / 0.1);
-  background: #f7f0e6;
-  padding: 1rem;
-  text-align: center;
 }
