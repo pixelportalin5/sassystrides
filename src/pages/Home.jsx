@@ -164,6 +164,52 @@ const Home = () => {
     ).length;
 
     console.log('Homepage placements with banners:', placedCount, '/', HOMEPAGE_BANNER_ORDER.length);
+
+    const timer = window.setTimeout(() => {
+      const nodes = [...document.querySelectorAll('.ad-banner[data-ad-id]')];
+      console.log('Banner DOM count:', nodes.length);
+
+      nodes.forEach((el) => {
+        const id = el.getAttribute('data-ad-id');
+        const rect = el.getBoundingClientRect();
+
+        console.log('Banner rect', id, {
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+          bottom: rect.bottom,
+          visible: rect.height > 0 && rect.width > 0,
+        });
+
+        let ancestor = el.parentElement;
+
+        while (ancestor && ancestor !== document.body) {
+          const styles = window.getComputedStyle(ancestor);
+          const collapsed =
+            styles.display === 'none' ||
+            styles.visibility === 'hidden' ||
+            Number(styles.opacity) === 0 ||
+            (styles.overflow === 'hidden' && ancestor.scrollHeight > ancestor.clientHeight + 2);
+
+          if (collapsed || ancestor.clientHeight === 0) {
+            console.warn('Banner ancestor issue', id, {
+              tag: ancestor.tagName,
+              className: ancestor.className,
+              display: styles.display,
+              overflow: styles.overflow,
+              height: styles.height,
+              maxHeight: styles.maxHeight,
+              clientHeight: ancestor.clientHeight,
+            });
+          }
+
+          ancestor = ancestor.parentElement;
+        }
+      });
+    }, 300);
+
+    return () => window.clearTimeout(timer);
   }, [banners, bannersLoading, getBannerById]);
 
   if (!loading && (error || !posts.length)) {

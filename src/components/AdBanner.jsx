@@ -1,9 +1,34 @@
+import { useEffect, useRef } from 'react';
 import { useBanners } from '../context/BannersContext';
 import { isRenderableBanner } from '../services/bannerService';
 
 const AdBanner = ({ adId, variant = 'default', nested = false }) => {
+  const bannerRef = useRef(null);
   const { getBannerById } = useBanners();
   const banner = getBannerById(adId);
+
+  useEffect(() => {
+    const el = bannerRef.current;
+
+    if (!el) {
+      return;
+    }
+
+    console.log('Banner Layout', adId, {
+      width: el.offsetWidth,
+      height: el.offsetHeight,
+    });
+
+    const rect = el.getBoundingClientRect();
+    console.log('Banner rect', adId, {
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+      bottom: rect.bottom,
+      visible: rect.height > 0 && rect.width > 0,
+    });
+  }, [adId, banner?.html]);
 
   if (!isRenderableBanner(banner)) {
     return null;
@@ -15,6 +40,7 @@ const AdBanner = ({ adId, variant = 'default', nested = false }) => {
 
   return (
     <aside
+      ref={bannerRef}
       className={`ad-banner ${nested ? '' : 'editorial-container'}`.trim()}
       data-ad-id={banner.id}
       data-ad-shortcode={banner.shortcode}

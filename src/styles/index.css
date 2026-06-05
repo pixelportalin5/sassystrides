@@ -304,12 +304,17 @@ img {
   background: #9b734c;
 }
 
+.ad-banner {
+  display: block;
+  width: 100%;
+}
+
 .ad-banner-slot {
   margin-top: 60px;
   margin-bottom: 60px;
-  display: flex;
-  justify-content: center;
+  display: block;
   width: 100%;
+  text-align: center;
 }
 
 .ad-banner-leaderboard {
@@ -320,8 +325,9 @@ img {
   border: 1px solid rgb(28 25 23 / 0.1);
   background: #f7f0e6;
   padding: 1.25rem;
-  display: flex;
-  justify-content: center;
+  display: block;
+  width: auto;
+  margin-inline: auto;
 }
 
 .ad-banner-pair {
@@ -331,9 +337,11 @@ img {
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.5rem;
+  width: 100%;
 }
 
 .ad-banner-pair .ad-banner {
+  width: auto;
   flex: 0 0 auto;
 }
 
@@ -344,22 +352,24 @@ img {
   padding: 0;
   border: 0;
   background: transparent;
-  cursor: pointer;
 }
 
 .ad-banner-frame {
+  display: block;
   width: 100%;
   margin: 0 auto;
-  display: flex;
-  justify-content: center;
   overflow: visible;
 }
 
+.ad-banner-frame > div {
+  display: block;
+  width: 100%;
+}
+
+.ad-banner img,
 .ad-banner-frame img {
-  width: auto;
+  display: block;
   max-width: 100%;
   height: auto;
-  object-fit: contain;
-  display: block;
   margin: 0 auto;
 }
