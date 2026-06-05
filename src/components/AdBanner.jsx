@@ -1,14 +1,15 @@
-import { memo } from 'react';
 import { useBanners } from '../context/BannersContext';
 import { isRenderableBanner } from '../services/bannerService';
 
 const AdBanner = ({ adId, variant = 'default', nested = false }) => {
-  const { getBannerById, isLoading } = useBanners();
+  const { getBannerById } = useBanners();
   const banner = getBannerById(adId);
 
-  if (isLoading || !isRenderableBanner(banner)) {
+  if (!isRenderableBanner(banner)) {
     return null;
   }
+
+  console.log('Rendering banner', banner.id);
 
   const isSideCard = variant === 'side-card';
 
@@ -30,10 +31,10 @@ const AdBanner = ({ adId, variant = 'default', nested = false }) => {
   );
 };
 
-export const AdBannerPair = memo(({ adIds = [] }) => {
-  const { getBannerById, isLoading } = useBanners();
+export const AdBannerPair = ({ adIds = [] }) => {
+  const { getBannerById } = useBanners();
 
-  if (isLoading || !adIds.length) {
+  if (!adIds.length) {
     return null;
   }
 
@@ -54,13 +55,13 @@ export const AdBannerPair = memo(({ adIds = [] }) => {
       ))}
     </div>
   );
-});
+};
 
-export const FeedAdSlot = memo(({ adId, className = '' }) => {
-  const { getBannerById, isLoading } = useBanners();
+export const FeedAdSlot = ({ adId, className = '' }) => {
+  const { getBannerById } = useBanners();
   const banner = getBannerById(adId);
 
-  if (isLoading || !isRenderableBanner(banner)) {
+  if (!isRenderableBanner(banner)) {
     return null;
   }
 
@@ -69,6 +70,6 @@ export const FeedAdSlot = memo(({ adId, className = '' }) => {
       <AdBanner adId={adId} />
     </div>
   );
-});
+};
 
-export default memo(AdBanner);
+export default AdBanner;

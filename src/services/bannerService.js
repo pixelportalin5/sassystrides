@@ -3,6 +3,7 @@ import { getSassyApiBaseUrl } from '../config/wordpress';
 export const fetchBanners = async () => {
   const response = await fetch(`${getSassyApiBaseUrl()}/banners`, {
     headers: { Accept: 'application/json' },
+    cache: 'no-store',
   });
 
   if (!response.ok) {
@@ -15,10 +16,5 @@ export const fetchBanners = async () => {
 
 export const isRenderableBanner = (banner) => {
   const html = typeof banner?.html === 'string' ? banner.html.trim() : '';
-
-  if (!html) {
-    return false;
-  }
-
-  return /<img\b|iframe\b|picture\b|video\b|svg\b/i.test(html);
+  return html.length > 0;
 };

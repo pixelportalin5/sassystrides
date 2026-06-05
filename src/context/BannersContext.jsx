@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { fetchBanners } from '../services/bannerService';
 
 const BannersContext = createContext({
@@ -17,18 +17,24 @@ export const BannersProvider = ({ children }) => {
 
     fetchBanners()
       .then((data) => {
-        if (!cancelled) {
-          setBanners(data);
+        if (cancelled) {
+          return;
         }
+
+        const nextBanners = Array.isArray(data) ? data : [];
+        setBanners(nextBanners);
+        setIsLoading(false);
+
+        console.log('Total banners from API:', nextBanners.length);
+        nextBanners.forEach((banner) => {
+          console.log('Rendering banner', banner.id);
+        });
       })
       .catch(() => {
         if (!cancelled) {
           setBanners([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
           setIsLoading(false);
+          console.log('Total banners from API:', 0);
         }
       });
 
@@ -42,7 +48,10 @@ export const BannersProvider = ({ children }) => {
     [banners],
   );
 
-  const getBannerById = (adId) => bannersById[String(adId)] ?? null;
+  const getBannerById = useCallback(
+    (adId) => bannersById[String(adId)] ?? null,
+    [bannersById],
+  );
 
   const value = useMemo(
     () => ({
@@ -51,7 +60,7 @@ export const BannersProvider = ({ children }) => {
       getBannerById,
       isLoading,
     }),
-    [banners, bannersById, isLoading],
+    [banners, bannersById, getBannerById, isLoading],
   );
 
   return <BannersContext.Provider value={value}>{children}</BannersContext.Provider>;

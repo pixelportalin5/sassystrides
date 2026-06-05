@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdBanner, { AdBannerPair } from '../components/AdBanner';
 import BlogCard from '../components/BlogCard';
@@ -8,9 +8,11 @@ import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
 import InstagramGallery from '../components/InstagramGallery';
 import Navbar from '../components/Navbar';
-import { HOMEPAGE_BANNER_IDS } from '../constants/bannerPlacements';
+import { useBanners } from '../context/BannersContext';
+import { HOMEPAGE_BANNER_IDS, HOMEPAGE_BANNER_ORDER } from '../constants/bannerPlacements';
 import { usePosts } from '../hooks/usePosts';
 import { stripHtml } from '../services/wordpressApi';
+import { isRenderableBanner } from '../services/bannerService';
 
 const Newsletter = lazy(() => import('../components/Newsletter'));
 
@@ -148,6 +150,21 @@ const BrandStrip = () => (
 
 const Home = () => {
   const { posts, categories, loading, error } = usePosts();
+  const { banners, getBannerById, isLoading: bannersLoading } = useBanners();
+
+  useEffect(() => {
+    if (bannersLoading) {
+      return;
+    }
+
+    console.log('Total banners from API:', banners.length);
+
+    const placedCount = HOMEPAGE_BANNER_ORDER.filter((adId) =>
+      isRenderableBanner(getBannerById(adId)),
+    ).length;
+
+    console.log('Homepage placements with banners:', placedCount, '/', HOMEPAGE_BANNER_ORDER.length);
+  }, [banners, bannersLoading, getBannerById]);
 
   if (!loading && (error || !posts.length)) {
     return (
@@ -172,7 +189,10 @@ const Home = () => {
     <div className="min-h-screen bg-ivory text-ink">
       <Navbar />
 
-      <main className="space-y-5 pb-20 lg:pb-8">
+      <main
+        className="space-y-5 pb-20 lg:pb-8"
+        key={bannersLoading ? 'banners-loading' : `banners-${banners.length}`}
+      >
         <HeroSection posts={posts.slice(0, 6)} />
         <AdBanner adId={HOMEPAGE_BANNER_IDS.banner1} />
 
