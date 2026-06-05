@@ -1,5 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import AdBanner, { AdBannerPair } from '../components/AdBanner';
 import BlogCard from '../components/BlogCard';
 import CategoryGrid from '../components/CategoryGrid';
 import FeaturedStories from '../components/FeaturedStories';
@@ -7,12 +8,13 @@ import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
 import InstagramGallery from '../components/InstagramGallery';
 import Navbar from '../components/Navbar';
+import { homepageAds } from '../data/homepageAds';
+import { useResolvedBanners } from '../hooks/useResolvedBanners';
 import { usePosts } from '../hooks/usePosts';
 import { stripHtml } from '../services/wordpressApi';
 
 const Newsletter = lazy(() => import('../components/Newsletter'));
 
-const sectionNames = ['Fashion', 'Beauty', 'Lifestyle', 'Trends', 'News'];
 const brandNames = ['Louis Vuitton', 'Gucci', 'Prada', 'Dior', 'Chanel', 'Saint Laurent', 'Cartier'];
 const cities = ['Paris', 'Milan', 'London', 'New York', 'Los Angeles'];
 
@@ -24,51 +26,6 @@ const SectionHeader = ({ title, action = 'View All' }) => (
     </span>
   </div>
 );
-
-const AdvertisementBanner = ({ post, issue = '01', wide = false }) => {
-  if (!post) {
-    return null;
-  }
-
-  return (
-    <section className="editorial-container grid grid-cols-[80px_1fr] overflow-hidden border border-ink/10 bg-parchment lg:grid-cols-[120px_1fr_220px]">
-      <div className="grid place-items-center border-r border-ink/10 bg-porcelain">
-        <div className="text-center">
-          <span className="serif-title block text-4xl text-espresso">{issue}</span>
-          <span className="micro-label text-taupe">Ad Space</span>
-        </div>
-      </div>
-      <Link
-        to={`/blog/${post.slug}`}
-        className={`group grid min-h-28 items-center gap-5 p-5 sm:grid-cols-[1fr_180px] ${
-          wide ? 'lg:grid-cols-[1fr_260px]' : ''
-        }`}
-      >
-        <div>
-          <p className="micro-label mb-1 text-bronze">Sponsored Highlight</p>
-          <h2 className="serif-title text-4xl uppercase leading-none text-espresso sm:text-5xl">
-            {stripHtml(post.title.rendered)}
-          </h2>
-        </div>
-        <img
-          src={post.image}
-          alt={post.imageAlt}
-          srcSet={post.imageSrcSet}
-          sizes="260px"
-          className="hidden h-24 w-full object-cover saturate-[0.8] transition duration-500 group-hover:saturate-100 sm:block"
-          loading="lazy"
-          decoding="async"
-        />
-      </Link>
-      <Link
-        to={`/blog/${post.slug}`}
-        className="hidden place-items-center bg-espresso px-6 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-porcelain transition hover:bg-bronze lg:grid"
-      >
-        Discover Now
-      </Link>
-    </section>
-  );
-};
 
 const MoodCarousel = ({ posts = [] }) => (
   <section className="editorial-container py-6">
@@ -117,6 +74,23 @@ const CategorySection = ({ name, posts = [], fallback = [] }) => {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {displayPosts.map((post, index) => (
           <BlogCard key={`${name}-${post.id}`} post={post} variant="compact" index={index + 6} />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const PostGridSection = ({ title, posts = [] }) => {
+  if (!posts.length) {
+    return null;
+  }
+
+  return (
+    <section className="editorial-container py-5">
+      <SectionHeader title={title} />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {posts.map((post, index) => (
+          <BlogCard key={`${title}-${post.id}`} post={post} variant="compact" index={index + 6} />
         ))}
       </div>
     </section>
@@ -175,8 +149,25 @@ const BrandStrip = () => (
 
 const Home = () => {
   const { posts, categories, loading, error } = usePosts();
+  const { resolvedBanners, isResolving } = useResolvedBanners(homepageAds);
 
-  console.log('Loading state:', loading);
+  const bannerAt = (index) => resolvedBanners[index] || homepageAds[index];
+
+  useEffect(() => {
+    if (loading || isResolving) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      const renderedCount = document.querySelectorAll('.ad-banner[data-ad-id]').length;
+      const resolvedCount = document.querySelectorAll('.ad-banner[data-ad-resolved="true"]').length;
+
+      console.log('Total banners rendered:', renderedCount);
+      console.log('Resolved image banners:', resolvedCount);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [loading, isResolving, resolvedBanners.length]);
 
   if (!loading && (error || !posts.length)) {
     return (
@@ -200,30 +191,73 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-ivory text-ink">
       <Navbar />
-      <main className="space-y-5 pb-8">
+
+      <main className="space-y-5 pb-20 lg:pb-8">
         <HeroSection posts={posts.slice(0, 6)} />
-        <AdvertisementBanner post={posts[6] || posts[0]} issue="01" wide />
+        <AdBanner banner={bannerAt(0)} priorityHigh />
+
         <CategoryGrid posts={posts.slice(3, 14)} categories={categories} />
-        <AdvertisementBanner post={posts[7] || posts[1]} issue="02" />
+
         <FeaturedStories posts={posts.slice(8, 14)} />
-        <AdvertisementBanner post={posts[14] || posts[2]} issue="03" wide />
+        <AdBanner banner={bannerAt(1)} priorityHigh />
+
         <MoodCarousel posts={posts.slice(0, 14)} />
-        {sectionNames.map((name, index) => (
-          <CategorySection
-            key={name}
-            name={name}
-            posts={posts}
-            fallback={posts.slice(index * 4, index * 4 + 4)}
-          />
-        ))}
-        <FashionCities posts={posts.slice(10, 16)} />
-        <AdvertisementBanner post={posts[16] || posts[3]} issue="11" wide />
+        <AdBanner banner={bannerAt(2)} priorityHigh />
+
+        <CategorySection
+          name="Fashion"
+          posts={posts}
+          fallback={posts.slice(0, 4)}
+        />
+        <AdBanner banner={bannerAt(3)} priorityHigh />
+
+        <CategorySection
+          name="Beauty"
+          posts={posts}
+          fallback={posts.slice(4, 8)}
+        />
+        <AdBannerPair banners={[bannerAt(4), bannerAt(5)]} />
+
+        <CategorySection
+          name="Lifestyle"
+          posts={posts}
+          fallback={posts.slice(8, 12)}
+        />
+        <AdBanner banner={bannerAt(6)} />
+
+        <InstagramGallery posts={posts.slice(0, 12)} />
+        <AdBanner banner={bannerAt(7)} />
+
+        <CategorySection
+          name="Trends"
+          posts={posts}
+          fallback={posts.slice(12, 16)}
+        />
+        <AdBanner banner={bannerAt(8)} />
+
+        <PostGridSection title="Editor's Picks" posts={posts.slice(4, 8)} />
+        <AdBanner banner={bannerAt(9)} />
+
         <Suspense fallback={<div className="editorial-container h-64 border border-ink/10 bg-porcelain" />}>
           <Newsletter />
         </Suspense>
-        <InstagramGallery posts={posts.slice(0, 12)} />
+        <AdBanner banner={bannerAt(10)} />
+
+        <PostGridSection title="Popular Stories" posts={posts.slice(8, 12)} />
+        <AdBanner banner={bannerAt(11)} />
+
+        <FashionCities posts={posts.slice(10, 16)} />
+        <AdBanner banner={bannerAt(12)} />
+
+        <PostGridSection title="Luxury Picks" posts={posts.slice(12, 16)} />
+        <AdBanner banner={bannerAt(13)} />
+
+        <AdBanner banner={bannerAt(14)} />
+
         <BrandStrip />
       </main>
+
+      <AdBanner banner={bannerAt(15)} />
       <Footer />
     </div>
   );

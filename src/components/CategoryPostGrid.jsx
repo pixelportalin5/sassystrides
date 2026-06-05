@@ -1,6 +1,7 @@
 import { Grid2X2, List } from 'lucide-react';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import PostFeedWithAds from './PostFeedWithAds';
 import { stripHtml } from '../services/wordpressApi';
 import CategoryBanner from './CategoryBanner';
 
@@ -68,7 +69,13 @@ const CategoryPostGrid = ({
   onViewChange,
   isLoading = false,
   emptyMessage = 'No articles found in this category.',
-}) => (
+}) => {
+  const feedSeed = useMemo(
+    () => 0.2 + posts.reduce((sum, post) => sum + (post.id || 0), 0) / 10000,
+    [posts],
+  );
+
+  return (
   <section id="category-posts" className="min-w-0">
     <h2 className="serif-title mb-5 text-5xl uppercase leading-none text-espresso">{title}</h2>
     <CategoryBanner post={adPost || posts[0]} slot={4} variant="inline" title="Max Mara" action="Discover" />
@@ -136,9 +143,16 @@ const CategoryPostGrid = ({
           view === 'list' ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'
         }`}
       >
-        {posts.map((post) => (
-          <CategoryPostCard key={post.id} post={post} view={view} />
-        ))}
+        <PostFeedWithAds
+          items={posts}
+          seed={feedSeed}
+          minGap={4}
+          maxGap={6}
+          containerWidth={view === 'list' ? 960 : 1280}
+          adVariant={view === 'list' ? 'default' : 'default'}
+          adClassName={view === 'list' ? '' : 'sm:col-span-2 xl:col-span-3'}
+          renderItem={(post) => <CategoryPostCard key={post.id} post={post} view={view} />}
+        />
       </div>
     ) : (
       <div className="mt-5 border border-ink/10 bg-porcelain p-10 text-center">
@@ -149,6 +163,7 @@ const CategoryPostGrid = ({
       </div>
     )}
   </section>
-);
+  );
+};
 
 export default memo(CategoryPostGrid);

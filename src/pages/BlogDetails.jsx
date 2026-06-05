@@ -9,6 +9,8 @@ import {
 import { lazy, memo, Suspense, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
+import AdBanner from '../components/AdBanner';
+import ArticleContentWithAds from '../components/ArticleContentWithAds';
 import BlogCard from '../components/BlogCard';
 import CategoryBanner from '../components/CategoryBanner';
 import Footer from '../components/Footer';
@@ -26,6 +28,7 @@ import {
   getReadingTime,
   stripHtml,
 } from '../services/wordpressApi';
+import { homepageAdPlacements } from '../data/homepageAds';
 
 const TrendingWidget = lazy(() => import('../components/TrendingWidget'));
 
@@ -37,49 +40,6 @@ const formatDate = (date) =>
   }).format(new Date(date));
 
 const getAuthorAvatar = (post) => post?.authorAvatar || DEFAULT_AUTHOR_AVATAR;
-
-const injectInlineAds = (html = '') => {
-  const adOne = `
-    <aside class="article-inline-ad">
-      <span>Advertisement</span>
-      <strong>Saint Laurent</strong>
-      <em>Curated luxury notes for the modern wardrobe</em>
-    </aside>
-  `;
-  const adTwo = `
-    <aside class="article-inline-ad article-inline-ad-dark">
-      <span>Editor's Selection</span>
-      <strong>Dior Beauty</strong>
-      <em>Timeless rituals, contemporary elegance</em>
-    </aside>
-  `;
-
-  const paragraphs = html.split('</p>');
-
-  if (paragraphs.length < 4) {
-    return html;
-  }
-
-  return paragraphs
-    .map((section, index) => {
-      if (!section.trim()) {
-        return section;
-      }
-
-      const paragraph = `${section}</p>`;
-
-      if (index === 2) {
-        return `${paragraph}${adOne}`;
-      }
-
-      if (index === 6) {
-        return `${paragraph}${adTwo}`;
-      }
-
-      return paragraph;
-    })
-    .join('');
-};
 
 const ArticleSkeleton = () => (
   <div className="min-h-screen bg-ivory text-ink">
@@ -248,10 +208,7 @@ const BlogDetails = () => {
     () => (post ? getReadingTime(post.content.rendered) : 0),
     [post],
   );
-  const articleContent = useMemo(
-    () => (post ? injectInlineAds(post.content.rendered) : ''),
-    [post],
-  );
+  const articleContent = post?.content?.rendered || '';
   const adjacent = useMemo(
     () => ({
       previous: relatedPosts[0] || null,
@@ -438,12 +395,7 @@ const BlogDetails = () => {
             </figure>
 
             <section className="border-x border-b border-ink/10 bg-porcelain px-6 py-8 shadow-soft sm:px-10 lg:px-16">
-              <div
-                className="article-content"
-                dangerouslySetInnerHTML={{
-                  __html: articleContent,
-                }}
-              />
+              <ArticleContentWithAds html={articleContent} seed={0.61} />
 
               <div className="mt-10 border-t border-ink/10 pt-7">
                 <p className="micro-label mb-4 text-espresso">Tags</p>
@@ -468,6 +420,10 @@ const BlogDetails = () => {
           <PostNavCard label="Previous Post" post={adjacent.previous} />
           <PostNavCard label="Next Post" post={adjacent.next} direction="next" />
         </section>
+
+        <div className="editorial-container py-4">
+          <AdBanner adId={homepageAdPlacements.afterLatestArticles} />
+        </div>
 
         {relatedPosts.length > 0 && (
           <section className="mx-auto max-w-[1400px] px-4 py-4">
