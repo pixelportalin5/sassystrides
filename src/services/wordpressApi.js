@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { getSassyApiBaseUrl } from '../config/wordpress';
 
-export const SASSY_API_BASE_URL = '/wp-json/sassy/v1';
+export const SASSY_API_BASE_URL = getSassyApiBaseUrl();
 export const REQUEST_TIMEOUT_MS = 15000;
 export const DEFAULT_ARTICLE_IMAGE =
   'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1200&q=80';
@@ -63,6 +64,7 @@ const browserFetchAdapter = async (config) => {
   const url = axios.getUri(config);
   const method = (config.method || 'get').toUpperCase();
 
+  console.log('[wordpress] request URL:', url);
   logDebug('request', { method, url });
 
   const response = await fetch(url, {
