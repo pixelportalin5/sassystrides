@@ -22,6 +22,7 @@ import {
   normalizePosts,
 } from '../services/categoryQueries';
 import {
+  DEFAULT_AUTHOR_AVATAR,
   getReadingTime,
   stripHtml,
 } from '../services/wordpressApi';
@@ -35,12 +36,7 @@ const formatDate = (date) =>
     year: 'numeric',
   }).format(new Date(date));
 
-const getAuthorAvatar = (post) => {
-  return (
-    post?.authorAvatar ||
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80'
-  );
-};
+const getAuthorAvatar = (post) => post?.authorAvatar || DEFAULT_AUTHOR_AVATAR;
 
 const injectInlineAds = (html = '') => {
   const adOne = `
@@ -226,6 +222,8 @@ const BlogDetails = () => {
     staleTime: CATEGORY_STALE_TIME,
     gcTime: CATEGORY_CACHE_TIME,
     refetchOnMount: 'always',
+    retry: 1,
+    retryDelay: 1000,
   });
 
   const post = postQuery.data ?? null;
@@ -262,9 +260,68 @@ const BlogDetails = () => {
     [relatedPosts],
   );
   const authorAvatar = useMemo(() => getAuthorAvatar(post), [post]);
-  const tags = post?.tagNames?.length ? post.tagNames : ['Fashion', post?.categoryName].filter(Boolean);
+  const tags = useMemo(() => {
+    if (post?.tagNames?.length) {
+      return post.tagNames;
+    }
 
-  if (postQuery.isPending) {
+    return [post?.categoryName || 'Editorial'].filter(Boolean);
+  }, [post]);
+
+  const isLoadingPost =
+    !articleSlug ||
+    postQuery.isPending ||
+    postQuery.isLoading ||
+    (postQuery.isFetching && !post);
+
+  const renderState = isLoadingPost
+    ? 'loading'
+    : postQuery.isError
+      ? 'error'
+      : !post
+        ? 'not-found'
+        : 'article';
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return;
+    }
+
+    console.debug('[BlogDetails] render-state', {
+      routeSlug,
+      articleSlug,
+      queryKey: categoryQueryKeys.postBySlug(articleSlug),
+      status: postQuery.status,
+      fetchStatus: postQuery.fetchStatus,
+      isPending: postQuery.isPending,
+      isLoading: postQuery.isLoading,
+      isFetching: postQuery.isFetching,
+      isError: postQuery.isError,
+      isSuccess: postQuery.isSuccess,
+      error: postQuery.error?.message ?? null,
+      hasPost: Boolean(post),
+      postId: post?.id ?? null,
+      renderState,
+      errorReason: postQuery.isError ? postQuery.error?.message : null,
+      notFoundReason:
+        postQuery.isSuccess && !post ? 'query succeeded but article is null' : null,
+    });
+  }, [
+    articleSlug,
+    post,
+    postQuery.error,
+    postQuery.fetchStatus,
+    postQuery.isError,
+    postQuery.isFetching,
+    postQuery.isLoading,
+    postQuery.isPending,
+    postQuery.isSuccess,
+    postQuery.status,
+    renderState,
+    routeSlug,
+  ]);
+
+  if (isLoadingPost) {
     return <ArticleSkeleton />;
   }
 

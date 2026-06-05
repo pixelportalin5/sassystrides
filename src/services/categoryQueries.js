@@ -41,23 +41,32 @@ export const fetchTrendingPostsQuery = async () =>
     return posts.slice(0, 5);
   });
 
-export const fetchCategoryPostsQuery = async ({ slug }) => {
-  console.log('Route slug:', slug);
-  const result = await timedRequest(`Posts:${slug}`, () =>
-    getSassyCategoryPosts(slug),
-  );
-
-  console.log('Matched category:', result.category);
-  console.log('Fetched posts:', result.posts);
-  return result;
-};
+export const fetchCategoryPostsQuery = async ({ slug }) =>
+  timedRequest(`Posts:${slug}`, () => getSassyCategoryPosts(slug));
 
 export const fetchPostBySlugQuery = async (slug) => {
   if (!slug) {
+    if (import.meta.env.DEV) {
+      console.debug('[fetchPostBySlugQuery] skipped — empty slug');
+    }
     return null;
   }
 
-  return getSassyPostBySlug(slug);
+  if (import.meta.env.DEV) {
+    console.debug('[fetchPostBySlugQuery] start', { slug });
+  }
+
+  const article = await getSassyPostBySlug(slug);
+
+  if (import.meta.env.DEV) {
+    console.debug('[fetchPostBySlugQuery] result', {
+      slug,
+      found: Boolean(article),
+      id: article?.id ?? null,
+    });
+  }
+
+  return article;
 };
 
 export const fetchRelatedPostsQuery = async ({ categorySlug, slug }) => {
@@ -84,7 +93,6 @@ export const prefetchCategoryData = (queryClient, slug) => {
         slug: normalizedSlug,
       }),
     staleTime: CATEGORY_STALE_TIME,
-    cacheTime: CATEGORY_CACHE_TIME,
     gcTime: CATEGORY_CACHE_TIME,
   });
 };
