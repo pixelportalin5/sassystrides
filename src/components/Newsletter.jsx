@@ -1,0 +1,32 @@
+const Newsletter = () => (
+  <section className="editorial-container grid overflow-hidden border border-ink/10 bg-porcelain md:grid-cols-[0.82fr_1.18fr_0.72fr]">
+    <div className="min-h-64 bg-[url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=85')] bg-cover bg-center saturate-[0.78]" />
+    <div className="flex flex-col justify-center p-8 text-center sm:p-12">
+      <p className="micro-label mb-4 text-bronze">Weekly Muse</p>
+      <h2 className="serif-title text-5xl leading-none text-espresso sm:text-7xl">
+        Never Miss The Next Trend.
+      </h2>
+      <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-taupe">
+        Receive runway notes, celebrity looks, beauty edits, and refined style
+        inspiration curated for the modern wardrobe.
+      </p>
+      <form className="mx-auto mt-7 flex w-full max-w-xl flex-col border border-ink/15 bg-ivory sm:flex-row">
+        <input
+          type="email"
+          required
+          placeholder="Enter your email address"
+          className="min-h-12 flex-1 bg-transparent px-5 text-sm outline-none placeholder:text-taupe/70"
+        />
+        <button
+          type="submit"
+          className="bg-espresso px-7 py-4 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-porcelain transition hover:bg-bronze"
+        >
+          Subscribe
+        </button>
+      </form>
+    </div>
+    <div className="hidden bg-[url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=700&q=85')] bg-cover bg-center saturate-[0.8] md:block" />
+  </section>
+);
+
+export default Newsletter;
