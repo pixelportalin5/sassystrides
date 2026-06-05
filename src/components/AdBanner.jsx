@@ -1,114 +1,51 @@
-import { memo, useEffect } from 'react';
-import { WORDPRESS_SITE_URL } from '../config/wordpress';
-import { getHomepageAd } from '../data/homepageAds';
-import { trackAdClick } from '../utils/adAnalytics';
+import { memo } from 'react';
+import { useBanners } from '../context/BannersContext';
 
-const logBannerRequest = (banner) => {
-  const usesWordPressDomain = banner.imageUrl.startsWith(`${WORDPRESS_SITE_URL}/`);
+const AdBanner = ({ adId, variant = 'default', nested = false }) => {
+  const { getBannerById } = useBanners();
+  const banner = getBannerById(adId);
 
-  console.log('[banner] API base URL:', WORDPRESS_SITE_URL);
-  console.log('[banner] request URL:', banner.imageUrl);
-  console.log('[banner] uses WordPress domain:', usesWordPressDomain);
-
-  if (!usesWordPressDomain) {
-    console.error('[banner] Invalid URL — must target', WORDPRESS_SITE_URL, banner.id, banner.imageUrl);
-  }
-};
-
-const AdBannerImage = ({ banner, priorityHigh = false }) => {
-  useEffect(() => {
-    logBannerRequest(banner);
-  }, [banner.id, banner.imageUrl]);
-
-  return (
-    <img
-      src={banner.imageUrl}
-      alt={banner.name}
-      width={banner.width}
-      height={banner.height}
-      loading={priorityHigh ? 'eager' : 'lazy'}
-      fetchPriority={priorityHigh ? 'high' : 'auto'}
-      decoding="async"
-      className="ad-banner-image"
-      onLoad={() => {
-        console.log('[banner] loaded:', banner.name);
-        console.log('[banner] image URL:', banner.imageUrl);
-      }}
-      onError={() => {
-        console.error('[banner] failed:', banner.id, banner.imageUrl);
-      }}
-    />
-  );
-};
-
-const AdBanner = ({ banner: bannerProp, adId, priorityHigh = false }) => {
-  const banner = bannerProp || (adId ? getHomepageAd(adId) : null);
-
-  if (!banner) {
+  if (!banner?.html) {
     return null;
   }
 
-  const isSideCard = banner.layout === 'side-card';
+  const isSideCard = variant === 'side-card';
 
   return (
     <aside
-      className="ad-banner editorial-container"
+      className={`ad-banner ${nested ? '' : 'editorial-container'}`.trim()}
       data-ad-id={banner.id}
-      data-ad-name={banner.name}
       data-ad-shortcode={banner.shortcode}
-      aria-label={`Advertisement: ${banner.name}`}
+      aria-label="Advertisement"
     >
       <div className={`ad-banner-slot ${isSideCard ? 'ad-banner-side-card' : 'ad-banner-leaderboard'}`}>
-        <button
-          type="button"
-          className="ad-banner-trigger"
-          onClick={() => trackAdClick(banner.id)}
-          aria-label={`Open advertisement ${banner.name}`}
-        >
+        <div className="ad-banner-trigger">
           <div className="ad-banner-frame">
-            <AdBannerImage banner={banner} priorityHigh={priorityHigh} />
+            <div dangerouslySetInnerHTML={{ __html: banner.html }} />
           </div>
-        </button>
+        </div>
       </div>
-      <template data-wp-shortcode={banner.shortcode} />
     </aside>
   );
 };
 
-export const AdBannerPair = memo(({ banners = [] }) => {
-  if (!banners.length) {
+export const AdBannerPair = memo(({ adIds = [] }) => {
+  if (!adIds.length) {
     return null;
   }
 
   return (
     <div className="ad-banner-pair editorial-container">
-      {banners.map((banner) => (
-        <aside
-          key={banner.id}
-          className="ad-banner ad-banner-side-card"
-          data-ad-id={banner.id}
-          data-ad-name={banner.name}
-          aria-label={`Advertisement: ${banner.name}`}
-        >
-          <button
-            type="button"
-            className="ad-banner-trigger"
-            onClick={() => trackAdClick(banner.id)}
-            aria-label={`Open advertisement ${banner.name}`}
-          >
-            <div className="ad-banner-frame">
-              <AdBannerImage banner={banner} />
-            </div>
-          </button>
-        </aside>
+      {adIds.map((adId) => (
+        <AdBanner key={adId} adId={adId} variant="side-card" nested />
       ))}
     </div>
   );
 });
 
-export const FeedAdSlot = memo(({ adId, banner }) => (
-  <div className="col-span-full py-2">
-    <AdBanner banner={banner} adId={adId} />
+export const FeedAdSlot = memo(({ adId, className = '' }) => (
+  <div className={`col-span-full py-2 ${className}`.trim()}>
+    <AdBanner adId={adId} />
   </div>
 ));
 

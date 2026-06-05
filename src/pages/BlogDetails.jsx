@@ -28,7 +28,7 @@ import {
   getReadingTime,
   stripHtml,
 } from '../services/wordpressApi';
-import { homepageAdPlacements } from '../data/homepageAds';
+import { BLOG_BANNER_IDS } from '../constants/bannerPlacements';
 
 const TrendingWidget = lazy(() => import('../components/TrendingWidget'));
 
@@ -422,7 +422,7 @@ const BlogDetails = () => {
         </section>
 
         <div className="editorial-container py-4">
-          <AdBanner adId={homepageAdPlacements.afterLatestArticles} />
+          <AdBanner adId={BLOG_BANNER_IDS.afterLatestArticles} />
         </div>
 
         {relatedPosts.length > 0 && (

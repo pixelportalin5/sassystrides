@@ -1,11 +1,11 @@
 import { Fragment, useMemo } from 'react';
 import AdBanner from './AdBanner';
-import { homepageAdPlacements } from '../data/homepageAds';
+import { ARTICLE_BANNER_IDS } from '../constants/bannerPlacements';
 import { getArticleAdParagraphIndexes, splitArticleParagraphs } from '../utils/adInjection';
 
 const ARTICLE_INLINE_ADS = [
-  { paragraphIndex: 1, adId: homepageAdPlacements.afterFashion },
-  { paragraphIndex: 4, adId: homepageAdPlacements.afterFeaturedStories },
+  { paragraphIndex: 1, adId: ARTICLE_BANNER_IDS.afterFashion },
+  { paragraphIndex: 4, adId: ARTICLE_BANNER_IDS.afterFeaturedStories },
 ];
 
 const ArticleContentWithAds = ({ html = '' }) => {
