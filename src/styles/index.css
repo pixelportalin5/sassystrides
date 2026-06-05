@@ -304,11 +304,17 @@ img {
   background: #9b734c;
 }
 
+.ad-banner {
+  outline: 4px solid red !important;
+}
+
 .ad-banner-slot {
   margin-top: 60px;
   margin-bottom: 60px;
   display: flex;
   justify-content: center;
+  width: 100%;
+  outline: 4px solid blue !important;
 }
 
 .ad-banner-leaderboard {
@@ -332,8 +338,13 @@ img {
   gap: 1.5rem;
 }
 
+.ad-banner-pair .ad-banner {
+  flex: 0 0 auto;
+}
+
 .ad-banner-trigger {
   display: block;
+  width: 100%;
   margin: 0 auto;
   padding: 0;
   border: 0;
@@ -342,11 +353,16 @@ img {
 }
 
 .ad-banner-frame {
+  width: 100%;
   margin: 0 auto;
-  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  outline: 4px solid green !important;
 }
 
 .ad-banner-image {
+  width: auto;
   max-width: 100%;
   height: auto;
   object-fit: contain;

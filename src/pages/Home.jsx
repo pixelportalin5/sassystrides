@@ -11,6 +11,7 @@ import Navbar from '../components/Navbar';
 import { homepageAds, homepageBannerSlots } from '../data/homepageAds';
 import { usePosts } from '../hooks/usePosts';
 import { stripHtml } from '../services/wordpressApi';
+import { inspectBannerLayout } from '../utils/bannerLayoutDiagnostics';
 
 const Newsletter = lazy(() => import('../components/Newsletter'));
 
@@ -156,9 +157,13 @@ const Home = () => {
 
     const timer = window.setTimeout(() => {
       const renderedCount = document.querySelectorAll('.ad-banner[data-ad-id]').length;
+      const imageCount = document.querySelectorAll('.ad-banner-image').length;
+
       console.log('Total banners rendered:', renderedCount);
+      console.log('Total banner images:', imageCount);
       console.log('Total banners configured:', homepageAds.length);
-    }, 0);
+      inspectBannerLayout();
+    }, 500);
 
     return () => window.clearTimeout(timer);
   }, [loading, posts.length]);
