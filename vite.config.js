@@ -12,13 +12,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/wp-json/sassy/v1': sassyApiProxy,
-      '/wp-json/wp/v2': sassyApiProxy,
     },
   },
   preview: {
     proxy: {
       '/wp-json/sassy/v1': sassyApiProxy,
-      '/wp-json/wp/v2': sassyApiProxy,
     },
   },
 });

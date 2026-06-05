@@ -1,185 +1,140 @@
 /**
- * Homepage banner config sourced from Google Sheet (order, shortcode IDs, dimensions).
- * Image URLs are hints only — resolved at runtime via bannerImageResolver.
+ * Static homepage banner config from Google Sheet.
+ * Direct image URLs — no runtime WordPress media lookup.
  * Sheet: https://docs.google.com/spreadsheets/d/16TRZ29JTpLJzHRnqtgAyTTDKN6EDyPKrvVEKYCAMkdU
  */
-
-export const HOMEPAGE_BANNER_PLACEHOLDER = '/placeholder-banner.jpg';
 
 const parseShortcodeId = (shortcode) => {
   const match = String(shortcode).match(/id="(\d+)"/);
   return match ? match[1] : '';
 };
 
-const createBanner = ({
-  order,
-  name,
-  shortcode,
-  width,
-  height,
-  expectedUrl,
-  mediaSearchToken,
-}) => {
+const createBanner = ({ name, shortcode, width, height, imageUrl }) => {
   const id = parseShortcodeId(shortcode);
 
   return {
-    order,
     id,
     name,
     shortcode,
+    imageUrl,
     width,
     height,
-    expectedUrl,
-    image: expectedUrl,
-    mediaSearchToken,
     layout: width === 300 && (height === 250 || height === 600) ? 'side-card' : 'leaderboard',
   };
 };
 
 export const homepageAds = [
   createBanner({
-    order: 1,
     name: 'Home-Page-Banner-1-1200X200',
     shortcode: '[the_ad id="1549"]',
     width: 1200,
     height: 200,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-1-1200X200.jpg',
-    mediaSearchToken: 'Home-Page-Banner-1',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-1-1200X200.jpg',
   }),
   createBanner({
-    order: 2,
     name: 'Home Page Banner 2 - 1170X250',
     shortcode: '[the_ad id="1553"]',
     width: 1170,
     height: 250,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-2-1170X250.jpg',
-    mediaSearchToken: 'Home-Page-Banner-2',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-2-1170X250.jpg',
   }),
   createBanner({
-    order: 3,
     name: 'Home Page Banner 3- 1170X250',
     shortcode: '[the_ad id="1552"]',
     width: 1170,
     height: 250,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-3-1170X250.png',
-    mediaSearchToken: 'Home-Page-Banner-3',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-3-1170X250.png',
   }),
   createBanner({
-    order: 4,
     name: 'Home Page Banner 4- 1200X200',
     shortcode: '[the_ad id="1550"]',
     width: 1200,
     height: 200,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-4-1200X200.jpeg',
-    mediaSearchToken: 'Home-Page-Banner-4',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-4-1200X200.jpeg',
   }),
   createBanner({
-    order: 5,
     name: 'Home Page Banner 5- 300X250',
     shortcode: '[the_ad id="1551"]',
     width: 300,
     height: 250,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-5-300X250.jpeg',
-    mediaSearchToken: 'Home-Page-Banner-5',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-5-300X250.jpeg',
   }),
   createBanner({
-    order: 6,
     name: 'Home Page Banner 6- 300X250',
     shortcode: '[the_ad id="1547"]',
     width: 300,
     height: 250,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-6-300X250.jpeg',
-    mediaSearchToken: 'Home-Page-Banner-6',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-6-300X250.jpeg',
   }),
   createBanner({
-    order: 7,
     name: 'Home Page Banner 7- 300X250',
     shortcode: '[the_ad id="1554"]',
     width: 300,
     height: 250,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-7-300X250.jpg',
-    mediaSearchToken: 'Home-Page-Banner-7',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-7-300X250.jpg',
   }),
   createBanner({
-    order: 8,
     name: 'Home Page Banner 8- 728X90',
     shortcode: '[the_ad id="1555"]',
     width: 728,
     height: 90,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-8-728X90.jpg',
-    mediaSearchToken: 'Home-Page-Banner-8',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/05/Home-Page-Banner-8-728X90.jpg',
   }),
   createBanner({
-    order: 9,
     name: 'Home Page Banner 9- 970X250',
     shortcode: '[the_ad id="1523"]',
     width: 970,
     height: 250,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/04/Home-Page-Banner-9-970X250.jpg',
-    mediaSearchToken: 'Home-Page-Banner-9',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/04/Home-Page-Banner-9-970X250.jpg',
   }),
   createBanner({
-    order: 10,
     name: 'Home Page Banner 10- 300X600',
     shortcode: '[the_ad id="1586"]',
     width: 300,
     height: 600,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-10-300X600.png',
-    mediaSearchToken: 'Home-Page-Banner-10',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-10-300X600.png',
   }),
   createBanner({
-    order: 11,
     name: 'Home Page Banner 11- 970X250',
     shortcode: '[the_ad id="1588"]',
     width: 970,
     height: 250,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-11-970X250.png',
-    mediaSearchToken: 'Home-Page-Banner-11',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-11-970X250.png',
   }),
   createBanner({
-    order: 12,
     name: 'Home Page Banner 12- 728X90',
     shortcode: '[the_ad id="1590"]',
     width: 728,
     height: 90,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-12-728X90.jpeg',
-    mediaSearchToken: 'Home-Page-Banner-12',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-12-728X90.jpeg',
   }),
   createBanner({
-    order: 13,
     name: 'Home Page Banner 13- 1200X200',
     shortcode: '[the_ad id="1592"]',
     width: 1200,
     height: 200,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-13-1200X200.jpeg',
-    mediaSearchToken: 'Home-Page-Banner-13',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-13-1200X200.jpeg',
   }),
   createBanner({
-    order: 14,
     name: 'Home Page Banner 14- 300X600',
     shortcode: '[the_ad id="1594"]',
     width: 300,
     height: 600,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-14-300X600.png',
-    mediaSearchToken: 'Home-Page-Banner-14',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-14-300X600.png',
   }),
   createBanner({
-    order: 15,
     name: 'Home Page Banner 15- 1140x150',
     shortcode: '[the_ad id="1596"]',
     width: 1140,
     height: 150,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-15-1140x150-1.jpeg',
-    mediaSearchToken: 'Home-Page-Banner-15',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-15-1140x150-1.jpeg',
   }),
   createBanner({
-    order: '15(2)',
     name: 'Home Page Banner 15(2)- 1140x150',
     shortcode: '[the_ad id="1598"]',
     width: 1140,
     height: 150,
-    expectedUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-152-1140x150-1.jpg',
-    mediaSearchToken: 'Home-Page-Banner-152',
+    imageUrl: 'https://sassystrides.com/wp-content/uploads/2026/06/Home-Page-Banner-152-1140x150-1.jpg',
   }),
 ];
 

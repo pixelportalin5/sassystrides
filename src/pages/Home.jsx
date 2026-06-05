@@ -8,8 +8,7 @@ import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
 import InstagramGallery from '../components/InstagramGallery';
 import Navbar from '../components/Navbar';
-import { homepageAds } from '../data/homepageAds';
-import { useResolvedBanners } from '../hooks/useResolvedBanners';
+import { homepageAds, homepageBannerSlots } from '../data/homepageAds';
 import { usePosts } from '../hooks/usePosts';
 import { stripHtml } from '../services/wordpressApi';
 
@@ -149,25 +148,20 @@ const BrandStrip = () => (
 
 const Home = () => {
   const { posts, categories, loading, error } = usePosts();
-  const { resolvedBanners, isResolving } = useResolvedBanners(homepageAds);
-
-  const bannerAt = (index) => resolvedBanners[index] || homepageAds[index];
 
   useEffect(() => {
-    if (loading || isResolving) {
+    if (loading) {
       return;
     }
 
     const timer = window.setTimeout(() => {
       const renderedCount = document.querySelectorAll('.ad-banner[data-ad-id]').length;
-      const resolvedCount = document.querySelectorAll('.ad-banner[data-ad-resolved="true"]').length;
-
       console.log('Total banners rendered:', renderedCount);
-      console.log('Resolved image banners:', resolvedCount);
+      console.log('Total banners configured:', homepageAds.length);
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [loading, isResolving, resolvedBanners.length]);
+  }, [loading, posts.length]);
 
   if (!loading && (error || !posts.length)) {
     return (
@@ -194,70 +188,70 @@ const Home = () => {
 
       <main className="space-y-5 pb-20 lg:pb-8">
         <HeroSection posts={posts.slice(0, 6)} />
-        <AdBanner banner={bannerAt(0)} priorityHigh />
+        <AdBanner banner={homepageBannerSlots.banner1} priorityHigh />
 
         <CategoryGrid posts={posts.slice(3, 14)} categories={categories} />
 
         <FeaturedStories posts={posts.slice(8, 14)} />
-        <AdBanner banner={bannerAt(1)} priorityHigh />
+        <AdBanner banner={homepageBannerSlots.banner2} priorityHigh />
 
         <MoodCarousel posts={posts.slice(0, 14)} />
-        <AdBanner banner={bannerAt(2)} priorityHigh />
+        <AdBanner banner={homepageBannerSlots.banner3} priorityHigh />
 
         <CategorySection
           name="Fashion"
           posts={posts}
           fallback={posts.slice(0, 4)}
         />
-        <AdBanner banner={bannerAt(3)} priorityHigh />
+        <AdBanner banner={homepageBannerSlots.banner4} priorityHigh />
 
         <CategorySection
           name="Beauty"
           posts={posts}
           fallback={posts.slice(4, 8)}
         />
-        <AdBannerPair banners={[bannerAt(4), bannerAt(5)]} />
+        <AdBannerPair banners={[homepageBannerSlots.banner5, homepageBannerSlots.banner6]} />
 
         <CategorySection
           name="Lifestyle"
           posts={posts}
           fallback={posts.slice(8, 12)}
         />
-        <AdBanner banner={bannerAt(6)} />
+        <AdBanner banner={homepageBannerSlots.banner7} />
 
         <InstagramGallery posts={posts.slice(0, 12)} />
-        <AdBanner banner={bannerAt(7)} />
+        <AdBanner banner={homepageBannerSlots.banner8} />
 
         <CategorySection
           name="Trends"
           posts={posts}
           fallback={posts.slice(12, 16)}
         />
-        <AdBanner banner={bannerAt(8)} />
+        <AdBanner banner={homepageBannerSlots.banner9} />
 
         <PostGridSection title="Editor's Picks" posts={posts.slice(4, 8)} />
-        <AdBanner banner={bannerAt(9)} />
+        <AdBanner banner={homepageBannerSlots.banner10} />
 
         <Suspense fallback={<div className="editorial-container h-64 border border-ink/10 bg-porcelain" />}>
           <Newsletter />
         </Suspense>
-        <AdBanner banner={bannerAt(10)} />
+        <AdBanner banner={homepageBannerSlots.banner11} />
 
         <PostGridSection title="Popular Stories" posts={posts.slice(8, 12)} />
-        <AdBanner banner={bannerAt(11)} />
+        <AdBanner banner={homepageBannerSlots.banner12} />
 
         <FashionCities posts={posts.slice(10, 16)} />
-        <AdBanner banner={bannerAt(12)} />
+        <AdBanner banner={homepageBannerSlots.banner13} />
 
         <PostGridSection title="Luxury Picks" posts={posts.slice(12, 16)} />
-        <AdBanner banner={bannerAt(13)} />
+        <AdBanner banner={homepageBannerSlots.banner14} />
 
-        <AdBanner banner={bannerAt(14)} />
+        <AdBanner banner={homepageBannerSlots.banner15} />
 
         <BrandStrip />
       </main>
 
-      <AdBanner banner={bannerAt(15)} />
+      <AdBanner banner={homepageBannerSlots.banner15b} />
       <Footer />
     </div>
   );
