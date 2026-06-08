@@ -1,8 +1,14 @@
 import { CATEGORY_AD_IDS, HOMEPAGE_AD_IDS } from '../constants/adSlotMappings';
-import { fetchAdById, loadHomepageBanners, prefetchAdsForPage } from './advancedAdsService';
+import {
+  fetchAdById,
+  loadCategoryAdsBatch,
+  loadHomepageBanners,
+} from './advancedAdsService';
 
 export const AD_STALE_TIME = 5 * 60 * 1000;
 export const AD_CACHE_TIME = 10 * 60 * 1000;
+export const CATEGORY_AD_STALE_TIME = 60 * 60 * 1000;
+export const CATEGORY_AD_CACHE_TIME = 2 * 60 * 60 * 1000;
 
 export const adQueryKeys = {
   homepage: ['ads', 'homepage'],
@@ -19,15 +25,15 @@ const hydrateHomepageAdCache = async (queryClient) => {
 };
 
 const hydrateCategoryAdCache = async (queryClient) => {
-  await Promise.all(
-    CATEGORY_AD_IDS.map(async (adId) => {
-      const ad = await fetchAdById(adId);
+  const categoryAds = await loadCategoryAdsBatch();
 
-      if (ad) {
-        queryClient.setQueryData(adQueryKeys.byId(adId), ad);
-      }
-    }),
-  );
+  CATEGORY_AD_IDS.forEach((adId) => {
+    const ad = categoryAds.get(String(adId));
+
+    if (ad) {
+      queryClient.setQueryData(adQueryKeys.byId(adId), ad);
+    }
+  });
 };
 
 const hydrateAdCache = async (queryClient, page) => {
@@ -51,8 +57,13 @@ export const prefetchCategoryAds = (queryClient) =>
   queryClient.prefetchQuery({
     queryKey: adQueryKeys.category,
     queryFn: () => hydrateAdCache(queryClient, 'category'),
-    staleTime: AD_STALE_TIME,
-    gcTime: AD_CACHE_TIME,
+    staleTime: CATEGORY_AD_STALE_TIME,
+    gcTime: CATEGORY_AD_CACHE_TIME,
   });
+
+export const fetchCategoryAdQuery = async (adId) => {
+  const categoryAds = await loadCategoryAdsBatch();
+  return categoryAds.get(String(adId)) ?? null;
+};
 
 export const fetchAdQuery = (adId) => fetchAdById(adId);

@@ -218,9 +218,23 @@ const CategoryPage = () => {
   }, [routeSlug]);
 
   useLayoutEffect(() => {
+    const prefetchTasks = [
+      queryClient.prefetchQuery({
+        queryKey: categoryQueryKeys.categoryPosts(routeSlug),
+        queryFn: () =>
+          fetchCategoryPostsQuery({
+            slug: routeSlug,
+          }),
+        staleTime: CATEGORY_STALE_TIME,
+        gcTime: CATEGORY_CACHE_TIME,
+      }),
+    ];
+
     if (isFeaturedPage(routeSlug)) {
-      prefetchCategoryAds(queryClient);
+      prefetchTasks.push(prefetchCategoryAds(queryClient));
     }
+
+    void Promise.all(prefetchTasks);
   }, [queryClient, routeSlug]);
 
   useEffect(() => {

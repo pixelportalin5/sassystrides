@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { getAdIdForSlot } from '../../constants/adSlotMappings';
 import { useAd } from '../../hooks/useAd';
 import { getAdImageUrl } from '../../services/advancedAdsService';
+import AdPlaceholder from './AdPlaceholder';
 
 const AdBannerFrame = ({ ad, imageUrl, size = 'horizontal' }) => {
   if (!ad || !imageUrl) {
@@ -37,9 +38,10 @@ const AdBannerFrame = ({ ad, imageUrl, size = 'horizontal' }) => {
 const AdSlot = ({ page = 'homepage', slot, variant = 'horizontal', className = '' }) => {
   const adId = getAdIdForSlot(page, slot);
 
-  const { data: ad, isSuccess } = useAd(adId);
+  const { data: ad, isSuccess, isPending } = useAd(adId);
 
   const imageUrl = getAdImageUrl(ad);
+  const isCategoryPage = page === 'category';
 
   useEffect(() => {
     if (!adId || !isSuccess) {
@@ -61,6 +63,10 @@ const AdSlot = ({ page = 'homepage', slot, variant = 'horizontal', className = '
       console.warn('Missing ad image for slot', slot, adId);
     }
   }, [ad, adId, imageUrl, isSuccess, page, slot]);
+
+  if (isCategoryPage && isPending && !ad) {
+    return <AdPlaceholder variant={variant} className={className} />;
+  }
 
   if (!ad || !imageUrl) {
     return null;

@@ -2,6 +2,7 @@ import { CATEGORY_AD_IDS, HOMEPAGE_AD_IDS } from '../constants/adSlotMappings';
 import { getSassyApiBaseUrl, getWordPressRestBaseUrl } from '../config/wordpress';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
+const CATEGORY_CACHE_TTL_MS = 60 * 60 * 1000;
 const adCache = new Map();
 
 const normalizeAdId = (adId) => String(adId).trim();
@@ -11,7 +12,11 @@ const extractImageUrl = (html = '') => {
   return match?.[1]?.replace(/\\\//g, '/') || null;
 };
 
-const isFresh = (entry) => entry && Date.now() - entry.fetchedAt < CACHE_TTL_MS;
+const getCacheTtl = (adId) =>
+  CATEGORY_AD_IDS.includes(normalizeAdId(adId)) ? CATEGORY_CACHE_TTL_MS : CACHE_TTL_MS;
+
+const isFresh = (entry, adId) =>
+  entry && Date.now() - entry.fetchedAt < getCacheTtl(adId);
 
 const setCache = (adId, ad) => {
   adCache.set(normalizeAdId(adId), {
@@ -21,8 +26,9 @@ const setCache = (adId, ad) => {
 };
 
 const getCache = (adId) => {
-  const entry = adCache.get(normalizeAdId(adId));
-  return isFresh(entry) ? entry.ad : null;
+  const normalizedId = normalizeAdId(adId);
+  const entry = adCache.get(normalizedId);
+  return isFresh(entry, normalizedId) ? entry.ad : null;
 };
 
 const fetchJson = async (url) => {
@@ -114,6 +120,106 @@ const logAdResult = (adId, ad) => {
 };
 
 let homepageBannerPromise = null;
+let categoryAdsBatchPromise = null;
+
+export const loadCategoryAdsBatch = async () => {
+  const allCached = CATEGORY_AD_IDS.every((adId) => getCache(adId));
+
+  if (allCached) {
+    const byId = new Map();
+    CATEGORY_AD_IDS.forEach((adId) => {
+      const ad = getCache(adId);
+      if (ad) {
+        byId.set(normalizeAdId(adId), ad);
+      }
+    });
+    return byId;
+  }
+
+  categoryAdsBatchPromise = null;
+
+  if (!categoryAdsBatchPromise) {
+    console.time('category-ads-fetch');
+
+    categoryAdsBatchPromise = (async () => {
+      const restBaseUrl = getWordPressRestBaseUrl();
+      const includeIds = CATEGORY_AD_IDS.join(',');
+      let advancedAds = [];
+
+      try {
+        advancedAds = await fetchJson(
+          `${restBaseUrl}/advanced_ads?include=${includeIds}&per_page=${CATEGORY_AD_IDS.length}&orderby=include`,
+        );
+      } catch (error) {
+        console.warn('[advancedAdsService] Category ads batch lookup failed:', error.message);
+      }
+
+      const advancedAdsById = new Map(
+        (Array.isArray(advancedAds) ? advancedAds : []).map((adPost) => [
+          normalizeAdId(adPost.id),
+          adPost,
+        ]),
+      );
+
+      const resolvedAds = await Promise.all(
+        CATEGORY_AD_IDS.map(async (adId) => {
+          const normalizedId = normalizeAdId(adId);
+          const cached = getCache(normalizedId);
+
+          if (cached) {
+            return cached;
+          }
+
+          try {
+            const mediaItems = await fetchJson(
+              `${restBaseUrl}/media?parent=${normalizedId}&per_page=1`,
+            );
+
+            if (!Array.isArray(mediaItems) || !mediaItems.length) {
+              return null;
+            }
+
+            const title = advancedAdsById.get(normalizedId)?.title?.rendered || '';
+            const mediaAd = buildAdFromMedia(normalizedId, mediaItems[0], title);
+
+            if (mediaAd && isRenderableAd(mediaAd)) {
+              setCache(normalizedId, mediaAd);
+              logAdResult(normalizedId, mediaAd);
+              return mediaAd;
+            }
+          } catch (error) {
+            console.warn(
+              '[advancedAdsService] Category media lookup failed:',
+              normalizedId,
+              error.message,
+            );
+          }
+
+          return null;
+        }),
+      );
+
+      const byId = new Map();
+      CATEGORY_AD_IDS.forEach((adId, index) => {
+        const ad = resolvedAds[index];
+        if (ad) {
+          byId.set(normalizeAdId(adId), ad);
+        }
+      });
+
+      return byId;
+    })()
+      .catch((error) => {
+        categoryAdsBatchPromise = null;
+        throw error;
+      })
+      .finally(() => {
+        console.timeEnd('category-ads-fetch');
+      });
+  }
+
+  return categoryAdsBatchPromise;
+};
 
 export const loadHomepageBanners = async () => {
   if (!homepageBannerPromise) {
@@ -184,15 +290,14 @@ export const fetchAdById = async (adId) => {
 
   if (CATEGORY_AD_IDS.includes(normalizedId)) {
     try {
-      const mediaAd = await loadAdMedia(normalizedId);
+      const categoryAds = await loadCategoryAdsBatch();
+      const categoryAd = categoryAds.get(normalizedId);
 
-      if (mediaAd && isRenderableAd(mediaAd)) {
-        setCache(normalizedId, mediaAd);
-        logAdResult(normalizedId, mediaAd);
-        return mediaAd;
+      if (categoryAd) {
+        return categoryAd;
       }
     } catch (error) {
-      console.warn('[advancedAdsService] Category media lookup failed:', normalizedId, error.message);
+      console.warn('[advancedAdsService] Category batch lookup failed:', normalizedId, error.message);
     }
   }
 
@@ -261,16 +366,17 @@ export const validateAllConfiguredAds = async () => {
 };
 
 export const prefetchAdsForPage = async (page) => {
-  const ids = page === 'category' ? CATEGORY_AD_IDS : HOMEPAGE_AD_IDS;
-
-  if (page !== 'category') {
-    await loadHomepageBanners();
+  if (page === 'category') {
+    await loadCategoryAdsBatch();
+    return;
   }
 
-  await Promise.all(ids.map((adId) => fetchAdById(adId)));
+  await loadHomepageBanners();
+  await Promise.all(HOMEPAGE_AD_IDS.map((adId) => fetchAdById(adId)));
 };
 
 export const clearAdvancedAdsCache = () => {
   adCache.clear();
   homepageBannerPromise = null;
+  categoryAdsBatchPromise = null;
 };
