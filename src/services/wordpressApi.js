@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { getSassyApiBaseUrl } from '../config/wordpress';
+import { getResolvedPostsApiUrl, getSassyApiBaseUrl } from '../config/wordpress';
 
-export const SASSY_API_BASE_URL = getSassyApiBaseUrl();
+export const getSassyApiBaseUrlRuntime = () => getSassyApiBaseUrl();
 export const REQUEST_TIMEOUT_MS = 15000;
 export const DEFAULT_ARTICLE_IMAGE =
   'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1200&q=80';
@@ -73,7 +73,7 @@ const browserFetchAdapter = async (config) => {
       ...config.headers,
     },
     signal: config.signal,
-    redirect: 'manual',
+    redirect: import.meta.env.DEV ? 'manual' : 'follow',
   });
 
   logDebug('response', {
@@ -83,7 +83,7 @@ const browserFetchAdapter = async (config) => {
     location: response.headers.get('location'),
   });
 
-  if (response.status >= 300 && response.status < 400) {
+  if (import.meta.env.DEV && response.status >= 300 && response.status < 400) {
     const location = response.headers.get('location') || 'unknown';
     throw new Error(
       `API redirect blocked (${response.status} → ${location}). Disable redirecting browser extensions and verify the Vite proxy.`,
@@ -91,6 +91,11 @@ const browserFetchAdapter = async (config) => {
   }
 
   if (!response.ok) {
+    console.error('[wordpress] Posts API request failed:', {
+      url,
+      status: response.status,
+      postsApiBase: getResolvedPostsApiUrl(),
+    });
     throw new Error(`Article request failed with status ${response.status}.`);
   }
 
@@ -107,7 +112,7 @@ const browserFetchAdapter = async (config) => {
 };
 
 const sassyApi = axios.create({
-  baseURL: SASSY_API_BASE_URL,
+  baseURL: getSassyApiBaseUrl(),
   timeout: REQUEST_TIMEOUT_MS,
   params: {
     v: '20260601',
@@ -120,6 +125,7 @@ const sassyApi = axios.create({
 });
 
 sassyApi.interceptors.request.use((config) => {
+  config.baseURL = getSassyApiBaseUrl();
   const url = axios.getUri(config);
   logDebug('axios-request', { method: config.method, url });
   return config;

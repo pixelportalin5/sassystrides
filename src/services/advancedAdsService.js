@@ -1,5 +1,9 @@
 import { CATEGORY_AD_IDS, HOMEPAGE_AD_IDS } from '../constants/adSlotMappings';
-import { getSassyApiBaseUrl, getWordPressRestBaseUrl } from '../config/wordpress';
+import {
+  getResolvedAdsApiUrl,
+  getSassyApiBaseUrl,
+  getWordPressRestBaseUrl,
+} from '../config/wordpress';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const CATEGORY_CACHE_TTL_MS = 60 * 60 * 1000;
@@ -35,9 +39,15 @@ const fetchJson = async (url) => {
   const response = await fetch(url, {
     headers: { Accept: 'application/json' },
     cache: 'no-store',
+    redirect: 'follow',
   });
 
   if (!response.ok) {
+    console.error('[wordpress] Ads API request failed:', {
+      url,
+      status: response.status,
+      adsApiBase: getResolvedAdsApiUrl(),
+    });
     throw new Error(`Advanced Ads request failed (${response.status}) for ${url}`);
   }
 
