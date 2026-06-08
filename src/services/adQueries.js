@@ -19,12 +19,13 @@ const hydrateHomepageAdCache = async (queryClient) => {
 };
 
 const hydrateCategoryAdCache = async (queryClient) => {
-  await prefetchAdsForPage('category');
-
   await Promise.all(
     CATEGORY_AD_IDS.map(async (adId) => {
       const ad = await fetchAdById(adId);
-      queryClient.setQueryData(adQueryKeys.byId(adId), ad ?? null);
+
+      if (ad) {
+        queryClient.setQueryData(adQueryKeys.byId(adId), ad);
+      }
     }),
   );
 };

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import AdSlot from '../components/ads/AdSlot';
@@ -217,12 +217,17 @@ const CategoryPage = () => {
     console.time(label);
   }, [routeSlug]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isFeaturedPage(routeSlug)) {
       prefetchCategoryAds(queryClient);
-      validateAllConfiguredAds();
     }
   }, [queryClient, routeSlug]);
+
+  useEffect(() => {
+    if (isFeaturedPage(routeSlug)) {
+      validateAllConfiguredAds();
+    }
+  }, [routeSlug]);
 
   useEffect(() => {
     const label = totalLoadLabelRef.current;

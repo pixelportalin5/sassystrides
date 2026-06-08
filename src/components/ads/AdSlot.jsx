@@ -37,12 +37,21 @@ const AdBannerFrame = ({ ad, imageUrl, size = 'horizontal' }) => {
 const AdSlot = ({ page = 'homepage', slot, variant = 'horizontal', className = '' }) => {
   const adId = getAdIdForSlot(page, slot);
 
-  const { data: ad, isSuccess, isFetching } = useAd(adId);
+  const { data: ad, isSuccess } = useAd(adId);
 
   const imageUrl = getAdImageUrl(ad);
 
   useEffect(() => {
-    if (!import.meta.env.DEV || !adId || page !== 'homepage' || !isSuccess) {
+    if (!adId || !isSuccess) {
+      return;
+    }
+
+    if (page === 'category') {
+      console.log('Category ad data:', ad);
+      return;
+    }
+
+    if (!import.meta.env.DEV || page !== 'homepage') {
       return;
     }
 
@@ -51,9 +60,9 @@ const AdSlot = ({ page = 'homepage', slot, variant = 'horizontal', className = '
     if (!imageUrl) {
       console.warn('Missing ad image for slot', slot, adId);
     }
-  }, [adId, imageUrl, isSuccess, page, slot]);
+  }, [ad, adId, imageUrl, isSuccess, page, slot]);
 
-  if (isFetching || !ad || !imageUrl) {
+  if (!ad || !imageUrl) {
     return null;
   }
 
