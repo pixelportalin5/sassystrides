@@ -4,6 +4,7 @@ import {
   getSassyApiBaseUrl,
   getWordPressRestBaseUrl,
 } from '../config/wordpress';
+import { fetchAdsApi, fetchWithRetry } from './apiClient';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const CATEGORY_CACHE_TTL_MS = 60 * 60 * 1000;
@@ -36,8 +37,7 @@ const getCache = (adId) => {
 };
 
 const fetchJson = async (url) => {
-  const response = await fetch(url, {
-    headers: { Accept: 'application/json' },
+  const response = await fetchWithRetry(url, {
     cache: 'no-store',
     redirect: 'follow',
   });
@@ -52,6 +52,38 @@ const fetchJson = async (url) => {
   }
 
   return response.json();
+};
+
+const hydrateCategoryAdsFromProxy = (categoryAds = {}) => {
+  const byId = new Map();
+
+  Object.entries(categoryAds).forEach(([adId, ad]) => {
+    if (ad && isRenderableAd(ad)) {
+      setCache(adId, ad);
+      logAdResult(adId, ad);
+      byId.set(normalizeAdId(adId), ad);
+    }
+  });
+
+  return byId;
+};
+
+const hydrateHomepageAdsFromProxy = (homepageAds = {}) => {
+  const byId = new Map();
+
+  Object.entries(homepageAds).forEach(([adId, banner]) => {
+    const normalized = {
+      ...banner,
+      id: normalizeAdId(adId),
+    };
+
+    if (isRenderableAd(normalized)) {
+      byId.set(normalized.id, normalized);
+      setCache(normalized.id, normalized);
+    }
+  });
+
+  return byId;
 };
 
 const buildAdFromMedia = (adId, media, title = '') => {
@@ -146,12 +178,15 @@ export const loadCategoryAdsBatch = async () => {
     return byId;
   }
 
-  categoryAdsBatchPromise = null;
-
   if (!categoryAdsBatchPromise) {
     console.time('category-ads-fetch');
 
     categoryAdsBatchPromise = (async () => {
+      if (!isDev) {
+        const proxyData = await fetchAdsApi('category');
+        return hydrateCategoryAdsFromProxy(proxyData?.category || {});
+      }
+
       const restBaseUrl = getWordPressRestBaseUrl();
       const includeIds = CATEGORY_AD_IDS.join(',');
       let advancedAds = [];
@@ -233,8 +268,13 @@ export const loadCategoryAdsBatch = async () => {
 
 export const loadHomepageBanners = async () => {
   if (!homepageBannerPromise) {
-    homepageBannerPromise = fetchJson(`${getSassyApiBaseUrl()}/banners`)
-      .then((data) => {
+    homepageBannerPromise = (async () => {
+      if (!isDev) {
+        const proxyData = await fetchAdsApi('homepage');
+        return hydrateHomepageAdsFromProxy(proxyData?.homepage || {});
+      }
+
+      const data = await fetchJson(`${getSassyApiBaseUrl()}/banners`);
         const banners = Array.isArray(data) ? data : [];
         const byId = new Map();
 
@@ -254,12 +294,11 @@ export const loadHomepageBanners = async () => {
           }
         });
 
-        return byId;
-      })
-      .catch((error) => {
-        homepageBannerPromise = null;
-        throw error;
-      });
+      return byId;
+    })().catch((error) => {
+      homepageBannerPromise = null;
+      throw error;
+    });
   }
 
   return homepageBannerPromise;
@@ -382,7 +421,6 @@ export const prefetchAdsForPage = async (page) => {
   }
 
   await loadHomepageBanners();
-  await Promise.all(HOMEPAGE_AD_IDS.map((adId) => fetchAdById(adId)));
 };
 
 export const clearAdvancedAdsCache = () => {

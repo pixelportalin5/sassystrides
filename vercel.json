@@ -3,15 +3,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/wp-json/sassy/v1/:path*",
-      "destination": "https://sassystrides.com/wp-json/sassy/v1/:path*"
-    },
-    {
-      "source": "/wp-json/wp/v2/:path*",
-      "destination": "https://sassystrides.com/wp-json/wp/v2/:path*"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]

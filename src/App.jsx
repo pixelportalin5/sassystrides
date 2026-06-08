@@ -1,7 +1,8 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
+import { logRequestSummary, setRequestPage } from './utils/requestTracker';
 
 const BlogDetails = lazy(() => import('./pages/BlogDetails'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
@@ -21,8 +22,40 @@ const RouteFallback = () => (
   </div>
 );
 
+const categoryRoutes = new Set(['/fashion', '/beauty', '/lifestyle', '/trends', '/news']);
+
+const getPageLabel = (pathname) => {
+  if (pathname === '/') {
+    return 'homepage';
+  }
+
+  if (pathname.startsWith('/blog/')) {
+    return 'article';
+  }
+
+  if (categoryRoutes.has(pathname) || pathname.startsWith('/category/')) {
+    return 'category';
+  }
+
+  return pathname;
+};
+
 const App = () => {
   const location = useLocation();
+
+  useEffect(() => {
+    const page = getPageLabel(location.pathname);
+    setRequestPage(page);
+
+    const summaryTimer = window.setTimeout(() => {
+      logRequestSummary(page);
+    }, 4000);
+
+    return () => {
+      window.clearTimeout(summaryTimer);
+      logRequestSummary(page);
+    };
+  }, [location.pathname]);
 
   return (
     <ErrorBoundary>

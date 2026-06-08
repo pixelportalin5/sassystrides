@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { fetchPostApi, fetchPostsApi } from './apiClient';
 import { getResolvedPostsApiUrl, getSassyApiBaseUrl } from '../config/wordpress';
 
 export const getSassyApiBaseUrlRuntime = () => getSassyApiBaseUrl();
@@ -269,6 +270,24 @@ const parsePostsResponse = (data) => {
 const requestSassy = async (path) => {
   if (!path) {
     return null;
+  }
+
+  if (!isDev) {
+    if (path === '/homepage') {
+      return fetchPostsApi();
+    }
+
+    const categoryMatch = path.match(/^\/category\/([^/]+)/);
+
+    if (categoryMatch) {
+      return fetchPostsApi(decodeURIComponent(categoryMatch[1]));
+    }
+
+    const postMatch = path.match(/^\/post\/([^/]+)/);
+
+    if (postMatch) {
+      return fetchPostApi(decodeURIComponent(postMatch[1]));
+    }
   }
 
   const { data } = await sassyApi.get(path);
