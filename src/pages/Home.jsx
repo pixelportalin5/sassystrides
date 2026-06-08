@@ -1,20 +1,21 @@
-import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { lazy, memo, Suspense, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdSlot from '../components/ads/AdSlot';
+import LazyAdSlot from '../components/ads/LazyAdSlot';
 import HomepageSponsorRow from '../components/ads/HomepageSponsorRow';
 import BlogCard from '../components/BlogCard';
 import CategoryGrid from '../components/CategoryGrid';
 import FeaturedStories from '../components/FeaturedStories';
 import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
-import InstagramGallery from '../components/InstagramGallery';
 import Navbar from '../components/Navbar';
 import HomeSkeleton from '../components/skeletons/HomeSkeleton';
 import { usePosts } from '../hooks/usePosts';
-import { prefetchHomepageAds } from '../services/adQueries';
 import { validateAllConfiguredAds } from '../services/advancedAdsService';
 import { stripHtml } from '../services/wordpressApi';
+import { getCardImageProps } from '../utils/imageSizes';
+
+const InstagramGallery = lazy(() => import('../components/InstagramGallery'));
 
 const cities = ['Paris', 'Milan', 'London', 'New York', 'Los Angeles'];
 
@@ -27,11 +28,13 @@ const SectionHeader = ({ title, action = 'View All' }) => (
   </div>
 );
 
-const MoodCarousel = ({ posts = [] }) => (
+const MoodCarousel = memo(({ posts = [] }) => (
   <section className="editorial-container editorial-section">
     <SectionHeader title="Browse By Style Mood" action="Swipe" />
     <div className="luxury-scrollbar flex gap-3 overflow-x-auto pb-3">
-      {posts.slice(0, 12).map((post) => (
+      {posts.slice(0, 12).map((post) => {
+        const imageProps = getCardImageProps(post, { compact: true });
+        return (
         <Link
           key={post.id}
           to={`/blog/${post.slug}`}
@@ -39,9 +42,9 @@ const MoodCarousel = ({ posts = [] }) => (
         >
           <div className="aspect-[1.08/1] overflow-hidden bg-champagne">
             <img
-              src={post.image}
+              src={imageProps.src}
               alt={post.imageAlt}
-              srcSet={post.imageSrcSet}
+              srcSet={imageProps.srcSet}
               sizes="205px"
               className="h-full w-full object-cover saturate-[0.8] transition duration-500 group-hover:scale-105 group-hover:saturate-100"
               loading="lazy"
@@ -53,10 +56,11 @@ const MoodCarousel = ({ posts = [] }) => (
             {stripHtml(post.title.rendered)}
           </h3>
         </Link>
-      ))}
+      );
+      })}
     </div>
   </section>
-);
+));
 
 const CategoryPostsSection = ({ name, posts = [], fallback = [] }) => {
   const sectionPosts =
@@ -133,13 +137,11 @@ const FashionCities = ({ posts = [] }) => (
 );
 
 const Home = () => {
-  const queryClient = useQueryClient();
   const { posts, categories, loading, error } = usePosts();
 
   useEffect(() => {
-    prefetchHomepageAds(queryClient);
     validateAllConfiguredAds();
-  }, [queryClient]);
+  }, []);
 
   if (loading && !posts.length) {
     return <HomeSkeleton />;
@@ -173,15 +175,15 @@ const Home = () => {
         <AdSlot page="homepage" slot={1} variant="magazine" />
 
         <CategoryGrid posts={posts.slice(3, 14)} categories={categories} />
-        <AdSlot page="homepage" slot={2} variant="magazine" />
+        <LazyAdSlot page="homepage" slot={2} variant="magazine" />
 
         <div className="editorial-container editorial-section">
           <FeaturedStories posts={posts.slice(8, 14)} />
         </div>
-        <AdSlot page="homepage" slot={3} variant="magazine" />
+        <LazyAdSlot page="homepage" slot={3} variant="magazine" />
 
         <MoodCarousel posts={posts.slice(0, 14)} />
-        <AdSlot page="homepage" slot={4} variant="magazine" />
+        <LazyAdSlot page="homepage" slot={4} variant="magazine" />
 
         <div className="editorial-container editorial-section homepage-sponsor-section">
           <div className="section-ad-row homepage-sponsor-row">
@@ -197,17 +199,19 @@ const Home = () => {
 
         <PostGridSection title="Editor's Picks" posts={posts.slice(4, 8)} />
 
-        <AdSlot page="homepage" slot={11} variant="magazine" />
+        <LazyAdSlot page="homepage" slot={11} variant="magazine" />
 
-        <AdSlot page="homepage" slot={9} variant="magazine" />
+        <LazyAdSlot page="homepage" slot={9} variant="magazine" />
         <FashionCities posts={posts.slice(10, 16)} />
-        <AdSlot page="homepage" slot={10} variant="magazine" />
+        <LazyAdSlot page="homepage" slot={10} variant="magazine" />
 
-        <AdSlot page="homepage" slot={13} variant="homepage-ad-centered" />
+        <LazyAdSlot page="homepage" slot={13} variant="homepage-ad-centered" />
 
-        <InstagramGallery posts={posts.slice(0, 8)} gridSlot={14} />
-        <AdSlot page="homepage" slot={15} variant="magazine" />
-        <AdSlot page="homepage" slot="15b" variant="magazine" />
+        <Suspense fallback={null}>
+          <InstagramGallery posts={posts.slice(0, 8)} gridSlot={14} />
+        </Suspense>
+        <LazyAdSlot page="homepage" slot={15} variant="magazine" />
+        <LazyAdSlot page="homepage" slot="15b" variant="magazine" />
       </main>
 
       <Footer />

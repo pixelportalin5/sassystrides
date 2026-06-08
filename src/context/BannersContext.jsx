@@ -15,30 +15,41 @@ export const BannersProvider = ({ children }) => {
   useEffect(() => {
     let cancelled = false;
 
-    fetchBanners()
-      .then((data) => {
-        if (cancelled) {
-          return;
-        }
+    const loadBanners = () => {
+      fetchBanners()
+        .then((data) => {
+          if (cancelled) {
+            return;
+          }
 
-        const nextBanners = Array.isArray(data) ? data : [];
-        setBanners(nextBanners);
-        setIsLoading(false);
-
-        if (import.meta.env.DEV) {
-          console.log('Total banners from API:', nextBanners.length);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setBanners([]);
+          const nextBanners = Array.isArray(data) ? data : [];
+          setBanners(nextBanners);
           setIsLoading(false);
-          console.log('Total banners from API:', 0);
-        }
-      });
 
+          if (import.meta.env.DEV) {
+            console.log('Total banners from API:', nextBanners.length);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setBanners([]);
+            setIsLoading(false);
+          }
+        });
+    };
+
+    if ('requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(loadBanners, { timeout: 4000 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(idleId);
+      };
+    }
+
+    const timerId = window.setTimeout(loadBanners, 2500);
     return () => {
       cancelled = true;
+      window.clearTimeout(timerId);
     };
   }, []);
 

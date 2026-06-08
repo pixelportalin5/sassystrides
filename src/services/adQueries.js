@@ -1,5 +1,5 @@
 import { CATEGORY_AD_IDS, HOMEPAGE_AD_IDS } from '../constants/adSlotMappings';
-import { fetchAdById, prefetchAdsForPage } from './advancedAdsService';
+import { fetchAdById, loadHomepageBanners, prefetchAdsForPage } from './advancedAdsService';
 
 export const AD_STALE_TIME = 5 * 60 * 1000;
 export const AD_CACHE_TIME = 10 * 60 * 1000;
@@ -10,17 +10,32 @@ export const adQueryKeys = {
   byId: (adId) => ['advanced-ad', String(adId)],
 };
 
-const hydrateAdCache = async (queryClient, page) => {
-  await prefetchAdsForPage(page);
+const hydrateHomepageAdCache = async (queryClient) => {
+  const bannersById = await loadHomepageBanners();
 
-  const ids = page === 'category' ? CATEGORY_AD_IDS : HOMEPAGE_AD_IDS;
+  HOMEPAGE_AD_IDS.forEach((adId) => {
+    queryClient.setQueryData(adQueryKeys.byId(adId), bannersById.get(String(adId)) ?? null);
+  });
+};
+
+const hydrateCategoryAdCache = async (queryClient) => {
+  await prefetchAdsForPage('category');
 
   await Promise.all(
-    ids.map(async (adId) => {
+    CATEGORY_AD_IDS.map(async (adId) => {
       const ad = await fetchAdById(adId);
       queryClient.setQueryData(adQueryKeys.byId(adId), ad ?? null);
     }),
   );
+};
+
+const hydrateAdCache = async (queryClient, page) => {
+  if (page === 'category') {
+    await hydrateCategoryAdCache(queryClient);
+    return;
+  }
+
+  await hydrateHomepageAdCache(queryClient);
 };
 
 export const prefetchHomepageAds = (queryClient) =>

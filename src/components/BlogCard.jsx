@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { prefetchPostData } from '../services/categoryQueries';
 import { stripHtml } from '../services/wordpressApi';
+import { getCardImageProps } from '../utils/imageSizes';
 import PostImage from './PostImage';
 
 const BlogCard = memo(({ post, variant = 'default', index = 1 }) => {
@@ -23,6 +24,7 @@ const BlogCard = memo(({ post, variant = 'default', index = 1 }) => {
   const isCompact = variant === 'compact';
   const isHorizontal = variant === 'horizontal';
   const priority = index <= 2;
+  const imageProps = getCardImageProps(post, { compact: isCompact });
 
   return (
     <article
@@ -45,10 +47,10 @@ const BlogCard = memo(({ post, variant = 'default', index = 1 }) => {
           }`}
         >
           <PostImage
-            src={post.image}
+            src={imageProps.src}
             alt={post.imageAlt}
-            srcSet={post.imageSrcSet}
-            sizes={post.imageSizes}
+            srcSet={imageProps.srcSet}
+            sizes={imageProps.sizes}
             priority={priority}
             className="h-full w-full object-cover saturate-[0.82] transition duration-700 group-hover:scale-105 group-hover:saturate-100"
           />
