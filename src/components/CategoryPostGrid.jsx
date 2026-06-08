@@ -1,9 +1,9 @@
 import { Grid2X2, List } from 'lucide-react';
-import { memo, useMemo } from 'react';
+import { Fragment, memo } from 'react';
 import { Link } from 'react-router-dom';
-import PostFeedWithAds from './PostFeedWithAds';
 import { stripHtml } from '../services/wordpressApi';
-import CategoryBanner from './CategoryBanner';
+import { isFeaturedPage } from '../utils/featuredPages';
+import AdSlot from './ads/AdSlot';
 
 const formatDate = (date) =>
   new Intl.DateTimeFormat('en', {
@@ -59,10 +59,55 @@ const CategoryPostCard = ({ post, view }) => {
   );
 };
 
+const ROW_AD_SLOTS = [
+  { slots: [1, 2], slotVariants: ['category-compact', 'category-medium'] },
+  { slots: [3], slotVariants: ['category-compact'] },
+  { slots: [5], slotVariants: ['category-inline'] },
+  { slots: [6], slotVariants: ['category-compact'] },
+];
+
+const CategoryPostFeed = ({ posts, view, categorySlug }) => {
+  const postsPerRow = view === 'list' ? 1 : 3;
+  const rows = [];
+
+  for (let index = 0; index < posts.length; index += postsPerRow) {
+    rows.push(posts.slice(index, index + postsPerRow));
+  }
+
+  return (
+    <>
+      {rows.map((rowPosts, rowIndex) => (
+        <Fragment key={`category-row-${rowPosts[0]?.id ?? rowIndex}`}>
+          {rowPosts.map((post) => (
+            <CategoryPostCard key={post.id} post={post} view={view} />
+          ))}
+
+          {ROW_AD_SLOTS[rowIndex] ? (
+            <div
+              className={
+                view === 'list' ? 'col-span-1' : 'sm:col-span-2 xl:col-span-3'
+              }
+            >
+              {ROW_AD_SLOTS[rowIndex].slots.map((slot, slotIndex) => (
+                <AdSlot
+                  key={`category-ad-${categorySlug}-${rowIndex}-${slot}`}
+                  page="category"
+                  slot={slot}
+                  variant={ROW_AD_SLOTS[rowIndex].slotVariants[slotIndex] || 'category-compact'}
+                />
+              ))}
+            </div>
+          ) : null}
+        </Fragment>
+      ))}
+    </>
+  );
+};
+
 const CategoryPostGrid = ({
   title,
   posts = [],
-  adPost,
+  categorySlug = '',
   sort,
   onSortChange,
   view,
@@ -70,99 +115,90 @@ const CategoryPostGrid = ({
   isLoading = false,
   emptyMessage = 'No articles found in this category.',
 }) => {
-  const feedSeed = useMemo(
-    () => 0.2 + posts.reduce((sum, post) => sum + (post.id || 0), 0) / 10000,
-    [posts],
-  );
+  const showCategoryAds = isFeaturedPage(categorySlug);
 
   return (
-  <section id="category-posts" className="min-w-0">
-    <h2 className="serif-title mb-5 text-5xl uppercase leading-none text-espresso">{title}</h2>
-    <CategoryBanner post={adPost || posts[0]} slot={4} variant="inline" title="Max Mara" action="Discover" />
+    <section id="category-posts" className="min-w-0">
+      <h2 className="serif-title mb-5 text-5xl uppercase leading-none text-espresso">{title}</h2>
 
-    <div className="mt-5 flex flex-col gap-4 border-y border-ink/10 py-4 text-[0.62rem] uppercase tracking-[0.16em] text-taupe sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3">
-        <span>Sort By:</span>
-        <select
-          value={sort}
-          onChange={(event) => onSortChange(event.target.value)}
-          className="bg-transparent font-semibold text-espresso outline-none"
-        >
-          <option value="latest">Latest</option>
-          <option value="popular">Popular</option>
-          <option value="oldest">Oldest</option>
-        </select>
-      </div>
-      <div className="flex items-center justify-between gap-4">
-        <span>
-          Showing 1-{posts.length} of {posts.length} results
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            aria-label="Grid view"
-            onClick={() => onViewChange('grid')}
-            className={`grid h-8 w-8 place-items-center border border-ink/10 ${
-              view === 'grid' ? 'bg-espresso text-porcelain' : 'bg-porcelain text-espresso'
-            }`}
+      <div className="mt-5 flex flex-col gap-4 border-y border-ink/10 py-4 text-[0.62rem] uppercase tracking-[0.16em] text-taupe sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span>Sort By:</span>
+          <select
+            value={sort}
+            onChange={(event) => onSortChange(event.target.value)}
+            className="bg-transparent font-semibold text-espresso outline-none"
           >
-            <Grid2X2 size={15} strokeWidth={1.4} />
-          </button>
-          <button
-            type="button"
-            aria-label="List view"
-            onClick={() => onViewChange('list')}
-            className={`grid h-8 w-8 place-items-center border border-ink/10 ${
-              view === 'list' ? 'bg-espresso text-porcelain' : 'bg-porcelain text-espresso'
-            }`}
-          >
-            <List size={15} strokeWidth={1.4} />
-          </button>
+            <option value="latest">Latest</option>
+            <option value="popular">Popular</option>
+            <option value="oldest">Oldest</option>
+          </select>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span>
+            Showing 1-{posts.length} of {posts.length} results
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label="Grid view"
+              onClick={() => onViewChange('grid')}
+              className={`grid h-8 w-8 place-items-center border border-ink/10 ${
+                view === 'grid' ? 'bg-espresso text-porcelain' : 'bg-porcelain text-espresso'
+              }`}
+            >
+              <Grid2X2 size={15} strokeWidth={1.4} />
+            </button>
+            <button
+              type="button"
+              aria-label="List view"
+              onClick={() => onViewChange('list')}
+              className={`grid h-8 w-8 place-items-center border border-ink/10 ${
+                view === 'list' ? 'bg-espresso text-porcelain' : 'bg-porcelain text-espresso'
+              }`}
+            >
+              <List size={15} strokeWidth={1.4} />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    {isLoading ? (
-      <div
-        className={`mt-5 grid gap-x-6 gap-y-8 ${
-          view === 'list' ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'
-        }`}
-      >
-        {[0, 1, 2, 3, 4, 5].map((item) => (
-          <div key={item} className="space-y-4">
-            <div className="aspect-[0.92/1] animate-pulse bg-champagne/70" />
-            <div className="h-3 w-20 animate-pulse bg-espresso/10" />
-            <div className="h-8 w-full animate-pulse bg-espresso/10" />
-            <div className="h-3 w-3/4 animate-pulse bg-espresso/10" />
-          </div>
-        ))}
-      </div>
-    ) : posts.length ? (
-      <div
-        className={`mt-5 grid gap-x-6 gap-y-8 ${
-          view === 'list' ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'
-        }`}
-      >
-        <PostFeedWithAds
-          items={posts}
-          seed={feedSeed}
-          minGap={4}
-          maxGap={6}
-          containerWidth={view === 'list' ? 960 : 1280}
-          adVariant={view === 'list' ? 'default' : 'default'}
-          adClassName={view === 'list' ? '' : 'sm:col-span-2 xl:col-span-3'}
-          renderItem={(post) => <CategoryPostCard key={post.id} post={post} view={view} />}
-        />
-      </div>
-    ) : (
-      <div className="mt-5 border border-ink/10 bg-porcelain p-10 text-center">
-        <p className="micro-label text-bronze">No Stories Found</p>
-        <h3 className="serif-title mt-3 text-4xl leading-none text-espresso">
-          {emptyMessage}
-        </h3>
-      </div>
-    )}
-  </section>
+      {isLoading ? (
+        <div
+          className={`mt-5 grid gap-x-6 gap-y-8 ${
+            view === 'list' ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'
+          }`}
+        >
+          {[0, 1, 2, 3, 4, 5].map((item) => (
+            <div key={item} className="space-y-4">
+              <div className="aspect-[0.92/1] animate-pulse bg-champagne/70" />
+              <div className="h-3 w-20 animate-pulse bg-espresso/10" />
+              <div className="h-8 w-full animate-pulse bg-espresso/10" />
+              <div className="h-3 w-3/4 animate-pulse bg-espresso/10" />
+            </div>
+          ))}
+        </div>
+      ) : posts.length ? (
+        <div
+          className={`mt-5 grid gap-x-6 gap-y-8 ${
+            view === 'list' ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'
+          }`}
+        >
+          {showCategoryAds ? (
+            <CategoryPostFeed posts={posts} view={view} categorySlug={categorySlug} />
+          ) : (
+            posts.map((post) => <CategoryPostCard key={post.id} post={post} view={view} />)
+          )}
+        </div>
+      ) : (
+        <div className="mt-5 border border-ink/10 bg-porcelain p-10 text-center">
+          <p className="micro-label text-bronze">No Stories Found</p>
+          <h3 className="serif-title mt-3 text-4xl leading-none text-espresso">
+            {emptyMessage}
+          </h3>
+        </div>
+      )}
+    </section>
   );
 };
 

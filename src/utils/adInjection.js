@@ -1,4 +1,75 @@
+import { getRenderableBanners } from '../services/bannerService';
+
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+export const countEditorialAdSlots = (itemCount, interval = 3) => {
+  let count = 0;
+
+  for (let index = 0; index < itemCount; index += 1) {
+    if ((index + 1) % interval === 0 && index < itemCount - 1) {
+      count += 1;
+    }
+  }
+
+  return count;
+};
+
+export const injectEditorialAdsIntoFeed = (
+  items = [],
+  banners = [],
+  { interval = 3 } = {},
+) => {
+  if (!items.length) {
+    return [];
+  }
+
+  const renderableBanners = getRenderableBanners(banners);
+
+  if (!renderableBanners.length) {
+    return items.map((item, index) => ({
+      type: 'post',
+      key: `post-${item.id ?? index}`,
+      item,
+      index,
+    }));
+  }
+
+  const totalSlots = countEditorialAdSlots(items.length, interval);
+  const shouldCycle = renderableBanners.length > totalSlots;
+  const result = [];
+
+  items.forEach((item, index) => {
+    result.push({
+      type: 'post',
+      key: `post-${item.id ?? index}`,
+      item,
+      index,
+    });
+
+    if ((index + 1) % interval === 0 && index < items.length - 1) {
+      const slotIndex = (index + 1) / interval - 1;
+      let ad = null;
+
+      if (shouldCycle) {
+        ad = renderableBanners[slotIndex % renderableBanners.length];
+      } else if (slotIndex < renderableBanners.length) {
+        ad = renderableBanners[slotIndex];
+      }
+
+      if (ad) {
+        result.push({
+          type: 'ad',
+          key: `ad-after-${item.id ?? index}-${ad.id}-${slotIndex}`,
+          ad,
+          afterIndex: index,
+          slotIndex,
+        });
+      }
+    }
+  });
+
+  return result;
+};
 
 export const pickRandomAd = (banners = [], { excludeId, seed = Math.random() } = {}) => {
   let pool = banners;

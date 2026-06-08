@@ -9,8 +9,8 @@ import {
 import { lazy, memo, Suspense, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import AdBanner from '../components/AdBanner';
 import ArticleContentWithAds from '../components/ArticleContentWithAds';
+import PostFeedWithAds from '../components/PostFeedWithAds';
 import BlogCard from '../components/BlogCard';
 import CategoryBanner from '../components/CategoryBanner';
 import Footer from '../components/Footer';
@@ -28,8 +28,6 @@ import {
   getReadingTime,
   stripHtml,
 } from '../services/wordpressApi';
-import { BLOG_BANNER_IDS } from '../constants/bannerPlacements';
-
 const TrendingWidget = lazy(() => import('../components/TrendingWidget'));
 
 const formatDate = (date) =>
@@ -421,10 +419,6 @@ const BlogDetails = () => {
           <PostNavCard label="Next Post" post={adjacent.next} direction="next" />
         </section>
 
-        <div className="editorial-container py-4">
-          <AdBanner adId={BLOG_BANNER_IDS.afterLatestArticles} />
-        </div>
-
         {relatedPosts.length > 0 && (
           <section className="mx-auto max-w-[1400px] px-4 py-4">
             <div className="mb-5 flex items-center justify-between border-b border-ink/10 pb-3">
@@ -434,9 +428,13 @@ const BlogDetails = () => {
               </span>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
-              {relatedPosts.map((item, index) => (
-                <BlogCard key={item.id} post={item} variant="compact" index={index + 6} />
-              ))}
+              <PostFeedWithAds
+                items={relatedPosts}
+                adClassName="md:col-span-3"
+                renderItem={(item, index) => (
+                  <BlogCard key={item.id} post={item} variant="compact" index={index + 6} />
+                )}
+              />
             </div>
           </section>
         )}

@@ -1,5 +1,5 @@
 import { useBanners } from '../context/BannersContext';
-import { isRenderableBanner } from '../services/bannerService';
+import { getRenderableBanners, isRenderableBanner } from '../services/bannerService';
 
 const filterRenderableIds = (adIds, getBannerById) =>
   adIds.filter((adId) => isRenderableBanner(getBannerById(adId)));
@@ -35,6 +35,45 @@ const adShellClass = ({ type, compact, nested }) =>
   ]
     .filter(Boolean)
     .join(' ');
+
+export const PageBannerStack = ({ className = '' }) => {
+  const { banners, isLoading } = useBanners();
+  const renderableBanners = getRenderableBanners(banners);
+
+  if (isLoading || !renderableBanners.length) {
+    return null;
+  }
+
+  return (
+    <section
+      className={`page-banner-stack editorial-container ${className}`.trim()}
+      aria-label="Sponsored placements"
+    >
+      <div className="ads-stack">
+        {renderableBanners.map((banner) => (
+          <BannerUnit key={banner.id} adId={String(banner.id)} size="horizontal" />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export const AdsStack = ({ adIds = [] }) => {
+  const { getBannerById } = useBanners();
+  const validIds = filterRenderableIds(adIds, getBannerById);
+
+  if (!validIds.length) {
+    return null;
+  }
+
+  return (
+    <div className="ads-stack">
+      {validIds.map((id) => (
+        <BannerUnit key={id} adId={id} size="horizontal" />
+      ))}
+    </div>
+  );
+};
 
 export const MagazineBanner = ({ adId }) => {
   const { getBannerById } = useBanners();

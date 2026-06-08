@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
-import CategoryBanner from '../components/CategoryBanner';
+import AdSlot from '../components/ads/AdSlot';
 import CategoryHero from '../components/CategoryHero';
 import CategoryPostGrid from '../components/CategoryPostGrid';
 import CategorySidebar from '../components/CategorySidebar';
@@ -15,6 +15,8 @@ import {
   normalizePosts,
   slugify,
 } from '../services/categoryQueries';
+import { validateAllConfiguredAds } from '../services/advancedAdsService';
+import { isFeaturedPage } from '../utils/featuredPages';
 import {
   stripHtml,
 } from '../services/wordpressApi';
@@ -215,6 +217,12 @@ const CategoryPage = () => {
   }, [routeSlug]);
 
   useEffect(() => {
+    if (isFeaturedPage(routeSlug)) {
+      validateAllConfiguredAds();
+    }
+  }, [routeSlug]);
+
+  useEffect(() => {
     const label = totalLoadLabelRef.current;
 
     if (!label) {
@@ -237,34 +245,6 @@ const CategoryPage = () => {
     [filters],
   );
 
-  useEffect(() => {
-    console.log('Category query state', {
-      slug: routeSlug,
-      categoryId: postsQuery.data?.category?.id || category?.id || null,
-      categorySlug: postsQuery.data?.category?.slug || category?.slug || routeSlug,
-      status: postsQuery.status,
-      isLoading: postsQuery.isLoading,
-      isFetching: postsQuery.isFetching,
-      isError: postsQuery.isError,
-      postCount: posts.length,
-      filteredPostCount: displayedPosts.length,
-      category: postsQuery.data?.category || null,
-      error: postsQuery.error?.message || null,
-    });
-  }, [
-    category?.id,
-    category?.slug,
-    displayedPosts.length,
-    posts.length,
-    postsQuery.data?.category,
-    postsQuery.error,
-    postsQuery.isError,
-    postsQuery.isFetching,
-    postsQuery.isLoading,
-    postsQuery.status,
-    routeSlug,
-  ]);
-
   const toggleFilter = useCallback((group, value) => {
     setFilters((current) => {
       const values = current[group];
@@ -281,22 +261,22 @@ const CategoryPage = () => {
   const isPostsLoading = postsQuery.isLoading && !posts.length;
   const hasApiError = postsQuery.isError;
   const trendingPosts = posts.slice(0, 5);
+  const showFeaturedAds = isFeaturedPage(routeSlug);
 
   return (
     <div className="min-h-screen bg-ivory text-ink">
       <Navbar />
       <main className="space-y-6 pb-8">
-        <div className="editorial-container pt-4">
-          <CategoryBanner post={posts[0] || trendingPosts[0]} slot={1} variant="leaderboard" title="Saint Laurent" />
-        </div>
-
         <CategoryHero category={activeCategory} heroPost={posts[0] || trendingPosts[0]} categories={categories} />
+
+        {showFeaturedAds ? (
+          <AdSlot page="category" slot={4} variant="category-billboard" className="pb-2" />
+        ) : null}
 
         <section className="editorial-container grid gap-6 lg:grid-cols-[210px_minmax(0,1fr)] xl:grid-cols-[210px_minmax(0,1fr)_230px]">
           <CategorySidebar
             category={activeCategory}
             categories={categories}
-            adPost={posts[2] || trendingPosts[2]}
             filters={filters}
             filterOptions={filterOptions}
             onToggleFilter={toggleFilter}
@@ -306,7 +286,7 @@ const CategoryPage = () => {
           <CategoryPostGrid
             title={activeCategory.name}
             posts={displayedPosts}
-            adPost={posts[3] || trendingPosts[3]}
+            categorySlug={routeSlug}
             sort={sort}
             onSortChange={setSort}
             view={view}
@@ -323,7 +303,6 @@ const CategoryPage = () => {
 
           <aside className="space-y-6 lg:col-span-2 xl:col-span-1">
             <div className="sticky top-24 space-y-6">
-              <CategoryBanner post={posts[1] || trendingPosts[1]} slot={2} variant="skyscraper" title="Dior" />
               <Suspense fallback={<div className="h-80 border border-ink/10 bg-porcelain" />}>
                 <TrendingWidget posts={trendingPosts} />
               </Suspense>
@@ -331,17 +310,15 @@ const CategoryPage = () => {
           </aside>
         </section>
 
-        <div className="editorial-container">
-          <CategoryBanner post={posts[4] || trendingPosts[4]} slot={5} variant="inline" title="Celine" action="Shop Collection" />
-        </div>
+        {showFeaturedAds ? (
+          <div className="editorial-container">
+            <AdSlot page="category" slot={7} variant="category-inline" />
+          </div>
+        ) : null}
 
         <Suspense fallback={<div className="editorial-container h-64 border border-ink/10 bg-porcelain" />}>
           <Newsletter />
         </Suspense>
-
-        <div className="editorial-container">
-          <CategoryBanner post={posts[5] || trendingPosts[5]} slot={6} variant="inline" title="Chanel" action="Subscribe" />
-        </div>
       </main>
       <Footer />
     </div>

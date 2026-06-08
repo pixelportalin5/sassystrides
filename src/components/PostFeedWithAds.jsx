@@ -1,24 +1,22 @@
 import { Fragment, useMemo } from 'react';
 import { useBanners } from '../context/BannersContext';
-import { FeedAdSlot } from './AdBanner';
-import { injectAdsIntoFeed } from '../utils/adInjection';
+import AdInsertion from './AdInsertion';
+import { injectEditorialAdsIntoFeed } from '../utils/adInjection';
 
 const PostFeedWithAds = ({
   items = [],
   renderItem,
-  minGap = 4,
-  maxGap = 6,
-  seed = 0.42,
   adClassName = '',
+  interval = 3,
 }) => {
   const { banners } = useBanners();
 
   const feed = useMemo(
-    () => injectAdsIntoFeed(items, banners, { minGap, maxGap, seed }),
-    [items, banners, minGap, maxGap, seed],
+    () => injectEditorialAdsIntoFeed(items, banners, { interval }),
+    [items, banners, interval],
   );
 
-  if (!feed.length) {
+  if (!items.length) {
     return null;
   }
 
@@ -27,9 +25,9 @@ const PostFeedWithAds = ({
       {feed.map((entry) => {
         if (entry.type === 'ad') {
           return (
-            <FeedAdSlot
+            <AdInsertion
               key={entry.key}
-              adId={entry.ad.id}
+              adId={String(entry.ad.id)}
               className={adClassName}
             />
           );

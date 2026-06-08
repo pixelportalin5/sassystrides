@@ -26,6 +26,18 @@ export const getSassyApiBaseUrl = () => {
 
 export const SASSY_API_BASE_URL = getSassyApiBaseUrl();
 
+export const getWordPressRestBaseUrl = () => {
+  if (import.meta.env.DEV) {
+    return '/wp-json/wp/v2';
+  }
+
+  if (typeof window !== 'undefined' && window.location.hostname !== wordpressHostname) {
+    return '/wp-json/wp/v2';
+  }
+
+  return `${WORDPRESS_SITE_URL}/wp-json/wp/v2`;
+};
+
 export const wpContentUrl = (path = '') => {
   const cleanPath = String(path).replace(/^\/+/, '');
   return `${WORDPRESS_SITE_URL}/wp-content/uploads/${cleanPath}`;

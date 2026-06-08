@@ -18,3 +18,6 @@ export const isRenderableBanner = (banner) => {
   const html = typeof banner?.html === 'string' ? banner.html.trim() : '';
   return html.length > 0;
 };
+
+export const getRenderableBanners = (banners = []) =>
+  banners.filter(isRenderableBanner);

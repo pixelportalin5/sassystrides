@@ -1,12 +1,8 @@
-import { BannerUnit } from './EditorialAds';
+import AdSlot from './ads/AdSlot';
 
-const Newsletter = ({ topAdId, rightAdId }) => (
+const Newsletter = ({ topSlot, rightSlot }) => (
   <section className="editorial-container editorial-section">
-    {topAdId ? (
-      <div className="newsletter-top-banner">
-        <BannerUnit adId={topAdId} size="horizontal" />
-      </div>
-    ) : null}
+    {topSlot ? <AdSlot page="homepage" slot={topSlot} variant="newsletter-top" /> : null}
 
     <div className="grid overflow-hidden border border-ink/10 bg-porcelain lg:grid-cols-[1fr_minmax(220px,280px)]">
       <div className="flex flex-col justify-center p-8 text-center sm:p-12">
@@ -35,7 +31,7 @@ const Newsletter = ({ topAdId, rightAdId }) => (
       </div>
 
       <div className="newsletter-ad-slot flex items-center justify-center border-t border-ink/10 bg-champagne/35 p-4 lg:border-l lg:border-t-0">
-        {rightAdId ? <BannerUnit adId={rightAdId} size="card" /> : null}
+        {rightSlot ? <AdSlot page="homepage" slot={rightSlot} variant="newsletter-right" /> : null}
       </div>
     </div>
   </section>

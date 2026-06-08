@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { GridAdCard } from './EditorialAds';
+import AdSlot from './ads/AdSlot';
 
-const InstagramGallery = ({ posts = [], gridAdId }) => {
+const InstagramGallery = ({ posts = [], gridSlot }) => {
   const gallery = posts.slice(0, 8);
 
   if (!gallery.length) {
@@ -32,9 +32,14 @@ const InstagramGallery = ({ posts = [], gridAdId }) => {
       </Link>,
     );
 
-    if (gridAdId && index === gallery.length - 1) {
+    if (gridSlot && index === gallery.length - 1) {
       items.push(
-        <GridAdCard key={`instagram-grid-ad-${gridAdId}`} adId={gridAdId} variant="inset-span2" />,
+        <AdSlot
+          key={`instagram-grid-ad-${gridSlot}`}
+          page="homepage"
+          slot={gridSlot}
+          variant="grid-card-inset-span2"
+        />,
       );
     }
   });

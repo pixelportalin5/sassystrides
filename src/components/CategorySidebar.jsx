@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
-import CategoryBanner from './CategoryBanner';
 import CategoryFilters from './CategoryFilters';
 
 const browseFallback = {
@@ -14,7 +13,6 @@ const browseFallback = {
 const CategorySidebar = ({
   category,
   categories = [],
-  adPost,
   filters,
   filterOptions,
   onToggleFilter,
@@ -51,8 +49,6 @@ const CategorySidebar = ({
           ))}
         </nav>
       </section>
-
-      <CategoryBanner post={adPost} slot={3} variant="sidebar" title="Prada" />
 
       <CategoryFilters
         filters={filters}

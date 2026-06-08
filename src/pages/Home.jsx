@@ -1,6 +1,7 @@
-import { lazy, Suspense } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BannerUnit, GridAdCard, MagazineBanner } from '../components/EditorialAds';
+import AdSlot from '../components/ads/AdSlot';
+import HomepageSponsorRow from '../components/ads/HomepageSponsorRow';
 import BlogCard from '../components/BlogCard';
 import CategoryGrid from '../components/CategoryGrid';
 import FeaturedStories from '../components/FeaturedStories';
@@ -8,13 +9,10 @@ import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
 import InstagramGallery from '../components/InstagramGallery';
 import Navbar from '../components/Navbar';
-import { HOMEPAGE_BANNER_IDS } from '../constants/bannerPlacements';
 import { usePosts } from '../hooks/usePosts';
+import { validateAllConfiguredAds } from '../services/advancedAdsService';
 import { stripHtml } from '../services/wordpressApi';
 
-const Newsletter = lazy(() => import('../components/Newsletter'));
-
-const brandNames = ['Louis Vuitton', 'Gucci', 'Prada', 'Dior', 'Chanel', 'Saint Laurent', 'Cartier'];
 const cities = ['Paris', 'Milan', 'London', 'New York', 'Los Angeles'];
 
 const SectionHeader = ({ title, action = 'View All' }) => (
@@ -57,62 +55,7 @@ const MoodCarousel = ({ posts = [] }) => (
   </section>
 );
 
-const SectionAdRow = ({ adIds = [], layout = 'pair' }) => {
-  const validAdIds = adIds.filter(Boolean);
-
-  if (!validAdIds.length) {
-    return null;
-  }
-
-  if (layout === 'full') {
-    return (
-      <div className="section-ad-row section-ad-row--full section-ad-row--edge">
-        <BannerUnit adId={validAdIds[0]} size="horizontal" />
-      </div>
-    );
-  }
-
-  if (layout === 'stack' && validAdIds.length >= 2) {
-    return (
-      <div className="section-ad-row section-ad-row--stack">
-        {validAdIds.slice(0, 2).map((adId) => (
-          <div key={adId} className="section-ad-row__slot">
-            <GridAdCard adId={adId} />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (layout === 'pair' && validAdIds.length >= 2) {
-    return (
-      <div className="section-ad-row">
-        <div className="section-ad-row__slot">
-          <GridAdCard adId={validAdIds[0]} />
-        </div>
-        <div className="section-ad-row__slot">
-          <GridAdCard adId={validAdIds[1]} />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="section-ad-row section-ad-row--single">
-      <div className="section-ad-row__slot">
-        <GridAdCard adId={validAdIds[0]} />
-      </div>
-    </div>
-  );
-};
-
-const CategorySectionWithAds = ({
-  name,
-  posts = [],
-  fallback = [],
-  adIds = [],
-  adLayout = 'pair',
-}) => {
+const CategoryPostsSection = ({ name, posts = [], fallback = [] }) => {
   const sectionPosts =
     posts.filter((post) => post.categoryName.toLowerCase().includes(name.toLowerCase()))
       .slice(0, 4) || [];
@@ -130,7 +73,6 @@ const CategorySectionWithAds = ({
           <BlogCard key={`${name}-${post.id}`} post={post} variant="compact" index={index + 6} />
         ))}
       </div>
-      <SectionAdRow adIds={adIds} layout={adLayout} />
     </section>
   );
 };
@@ -187,23 +129,12 @@ const FashionCities = ({ posts = [] }) => (
   </section>
 );
 
-const BrandStrip = () => (
-  <section className="editorial-container border-y border-ink/10 bg-espresso px-4 py-5 text-porcelain">
-    <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
-      {brandNames.map((brand) => (
-        <span
-          key={brand}
-          className="serif-title text-2xl uppercase leading-none tracking-[0.04em] text-porcelain/90"
-        >
-          {brand}
-        </span>
-      ))}
-    </div>
-  </section>
-);
-
 const Home = () => {
   const { posts, categories, loading, error } = usePosts();
+
+  useEffect(() => {
+    validateAllConfiguredAds();
+  }, []);
 
   if (!loading && (error || !posts.length)) {
     return (
@@ -230,87 +161,44 @@ const Home = () => {
 
       <main className="homepage-magazine pb-20 lg:pb-8">
         <HeroSection posts={posts.slice(0, 6)} />
-        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.afterHero} />
+        <AdSlot page="homepage" slot={1} variant="magazine" />
 
         <CategoryGrid posts={posts.slice(3, 14)} categories={categories} />
-        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.afterCategoryGrid} />
+        <AdSlot page="homepage" slot={2} variant="magazine" />
 
         <div className="editorial-container editorial-section">
           <FeaturedStories posts={posts.slice(8, 14)} />
         </div>
-        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.afterFeaturedStories} />
+        <AdSlot page="homepage" slot={3} variant="magazine" />
 
         <MoodCarousel posts={posts.slice(0, 14)} />
-        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.afterMoodCarousel} />
+        <AdSlot page="homepage" slot={4} variant="magazine" />
 
-        <CategorySectionWithAds
-          name="Fashion"
-          posts={posts}
-          fallback={posts.slice(0, 4)}
-          adIds={[
-            HOMEPAGE_BANNER_IDS.fashionGridPrimary,
-            HOMEPAGE_BANNER_IDS.fashionGridSecondary,
-          ]}
-          adLayout="pair"
-        />
+        <div className="editorial-container editorial-section homepage-sponsor-section">
+          <div className="section-ad-row homepage-sponsor-row">
+            <HomepageSponsorRow />
+          </div>
+        </div>
 
-        <CategorySectionWithAds
-          name="Beauty"
-          posts={posts}
-          fallback={posts.slice(4, 8)}
-          adIds={[HOMEPAGE_BANNER_IDS.beautyGridSecondary]}
-          adLayout="full"
-        />
-
-        <CategorySectionWithAds
-          name="Lifestyle"
-          posts={posts}
-          fallback={posts.slice(8, 12)}
-          adIds={[HOMEPAGE_BANNER_IDS.lifestyleGrid]}
-          adLayout="single"
-        />
-
-        <CategorySectionWithAds
-          name="Trends"
-          posts={posts}
-          fallback={posts.slice(12, 16)}
-          adIds={[HOMEPAGE_BANNER_IDS.trendsGrid]}
-          adLayout="single"
-        />
-
-        <CategorySectionWithAds
-          name="News"
-          posts={posts}
-          fallback={posts.slice(2, 6)}
-          adIds={[
-            HOMEPAGE_BANNER_IDS.newsGridPrimary,
-            HOMEPAGE_BANNER_IDS.newsGridSecondary,
-          ]}
-        />
+        <CategoryPostsSection name="Fashion" posts={posts} fallback={posts.slice(0, 4)} />
+        <CategoryPostsSection name="Beauty" posts={posts} fallback={posts.slice(4, 8)} />
+        <CategoryPostsSection name="Lifestyle" posts={posts} fallback={posts.slice(8, 12)} />
+        <CategoryPostsSection name="Trends" posts={posts} fallback={posts.slice(12, 16)} />
+        <CategoryPostsSection name="News" posts={posts} fallback={posts.slice(2, 6)} />
 
         <PostGridSection title="Editor's Picks" posts={posts.slice(4, 8)} />
 
-        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.beforeFashionCities} />
+        <AdSlot page="homepage" slot={11} variant="magazine" />
+
+        <AdSlot page="homepage" slot={9} variant="magazine" />
         <FashionCities posts={posts.slice(10, 16)} />
+        <AdSlot page="homepage" slot={10} variant="magazine" />
 
-        <Suspense
-          fallback={
-            <div className="editorial-container editorial-section h-64 border border-ink/10 bg-porcelain" />
-          }
-        >
-          <Newsletter
-            topAdId={HOMEPAGE_BANNER_IDS.newsletterTop}
-            rightAdId={HOMEPAGE_BANNER_IDS.newsletterRight}
-          />
-        </Suspense>
+        <AdSlot page="homepage" slot={12} variant="section-full" />
 
-        <InstagramGallery
-          posts={posts.slice(0, 8)}
-          gridAdId={HOMEPAGE_BANNER_IDS.beautyGridPrimary}
-        />
-        <MagazineBanner adId={HOMEPAGE_BANNER_IDS.instagramBelow} />
-
-        <BrandStrip />
+        <InstagramGallery posts={posts.slice(0, 8)} gridSlot={14} />
+        <AdSlot page="homepage" slot={15} variant="magazine" />
+        <AdSlot page="homepage" slot="15b" variant="magazine" />
       </main>
 
       <Footer />
