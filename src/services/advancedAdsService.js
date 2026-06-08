@@ -92,7 +92,13 @@ export const getAdImageUrl = (ad) => {
 
 export const isRenderableAd = (ad) => Boolean(getAdImageUrl(ad));
 
+const isDev = import.meta.env.DEV;
+
 const logAdResult = (adId, ad) => {
+  if (!isDev) {
+    return;
+  }
+
   const imageUrl = ad?.imageUrl || extractImageUrl(ad?.html);
 
   console.log('[advancedAdsService] Ad response:', {
@@ -109,18 +115,20 @@ const logAdResult = (adId, ad) => {
 
 let homepageBannerPromise = null;
 
-const loadHomepageBanners = async () => {
+export const loadHomepageBanners = async () => {
   if (!homepageBannerPromise) {
     homepageBannerPromise = fetchJson(`${getSassyApiBaseUrl()}/banners`)
       .then((data) => {
         const banners = Array.isArray(data) ? data : [];
         const byId = new Map();
 
-        console.log('[advancedAdsService] Homepage banners API count:', banners.length);
-        console.log(
-          '[advancedAdsService] Homepage banners API IDs:',
-          banners.map((banner) => banner.id),
-        );
+        if (isDev) {
+          console.log('[advancedAdsService] Homepage banners API count:', banners.length);
+          console.log(
+            '[advancedAdsService] Homepage banners API IDs:',
+            banners.map((banner) => banner.id),
+          );
+        }
 
         banners.forEach((banner) => {
           const normalized = normalizeSassyBanner(banner);
@@ -145,7 +153,9 @@ const loadAdMedia = async (adId) => {
   const restBaseUrl = getWordPressRestBaseUrl();
   const mediaItems = await fetchJson(`${restBaseUrl}/media?parent=${normalizeAdId(adId)}&per_page=1`);
 
-  console.log('[advancedAdsService] Media response for ad', adId, mediaItems);
+  if (isDev) {
+    console.log('[advancedAdsService] Media response for ad', adId, mediaItems);
+  }
 
   if (!Array.isArray(mediaItems) || !mediaItems.length) {
     return null;
@@ -220,6 +230,10 @@ export const fetchAdById = async (adId) => {
 };
 
 export const validateAllConfiguredAds = async () => {
+  if (!isDev) {
+    return [];
+  }
+
   const allIds = [...HOMEPAGE_AD_IDS, ...CATEGORY_AD_IDS];
 
   const results = await Promise.all(

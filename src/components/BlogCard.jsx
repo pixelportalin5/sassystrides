@@ -1,8 +1,20 @@
 import { ArrowUpRight } from 'lucide-react';
+import { memo, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { prefetchPostData } from '../services/categoryQueries';
 import { stripHtml } from '../services/wordpressApi';
+import PostImage from './PostImage';
 
-const BlogCard = ({ post, variant = 'default', index = 1 }) => {
+const BlogCard = memo(({ post, variant = 'default', index = 1 }) => {
+  const queryClient = useQueryClient();
+
+  const prefetchPost = useCallback(() => {
+    if (post?.slug) {
+      prefetchPostData(queryClient, post.slug);
+    }
+  }, [post?.slug, queryClient]);
+
   if (!post) {
     return null;
   }
@@ -10,12 +22,15 @@ const BlogCard = ({ post, variant = 'default', index = 1 }) => {
   const isLarge = variant === 'large';
   const isCompact = variant === 'compact';
   const isHorizontal = variant === 'horizontal';
+  const priority = index <= 2;
 
   return (
     <article
       className={`group relative overflow-hidden border border-ink/10 bg-porcelain shadow-soft transition duration-500 hover:-translate-y-1 hover:shadow-editorial ${
         isHorizontal ? 'grid grid-cols-[120px_1fr] sm:grid-cols-[160px_1fr]' : ''
       }`}
+      onMouseEnter={prefetchPost}
+      onFocus={prefetchPost}
     >
       <Link to={`/blog/${post.slug}`} aria-label={stripHtml(post.title.rendered)}>
         <div
@@ -29,15 +44,13 @@ const BlogCard = ({ post, variant = 'default', index = 1 }) => {
                   : 'aspect-[1.12/1]'
           }`}
         >
-          <img
+          <PostImage
             src={post.image}
             alt={post.imageAlt}
             srcSet={post.imageSrcSet}
             sizes={post.imageSizes}
+            priority={priority}
             className="h-full w-full object-cover saturate-[0.82] transition duration-700 group-hover:scale-105 group-hover:saturate-100"
-            loading={index <= 4 ? 'eager' : 'lazy'}
-            decoding="async"
-            fetchPriority={index <= 2 ? 'high' : 'auto'}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-espresso/70 via-espresso/8 to-transparent opacity-80" />
           {!isHorizontal && (
@@ -53,7 +66,7 @@ const BlogCard = ({ post, variant = 'default', index = 1 }) => {
           <span>{post.categoryName}</span>
           <span className="h-px flex-1 bg-ink/10" />
         </div>
-        <Link to={`/blog/${post.slug}`}>
+        <Link to={`/blog/${post.slug}`} onMouseEnter={prefetchPost} onFocus={prefetchPost}>
           <h3
             className={`serif-title text-ink transition duration-300 group-hover:text-bronze ${
               isLarge
@@ -73,6 +86,8 @@ const BlogCard = ({ post, variant = 'default', index = 1 }) => {
         )}
         <Link
           to={`/blog/${post.slug}`}
+          onMouseEnter={prefetchPost}
+          onFocus={prefetchPost}
           className="mt-5 inline-flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-espresso transition hover:text-bronze"
         >
           Read More
@@ -81,6 +96,8 @@ const BlogCard = ({ post, variant = 'default', index = 1 }) => {
       </div>
     </article>
   );
-};
+});
+
+BlogCard.displayName = 'BlogCard';
 
 export default BlogCard;

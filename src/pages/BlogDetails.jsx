@@ -7,7 +7,7 @@ import {
   Share2,
 } from 'lucide-react';
 import { lazy, memo, Suspense, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import ArticleContentWithAds from '../components/ArticleContentWithAds';
 import PostFeedWithAds from '../components/PostFeedWithAds';
@@ -166,6 +166,7 @@ const PostNavCard = ({ label, post, direction }) => {
 };
 
 const BlogDetails = () => {
+  const queryClient = useQueryClient();
   const { slug: routeSlug } = useParams();
   const articleSlug = routeSlug ? decodeURIComponent(routeSlug) : '';
 
@@ -179,7 +180,6 @@ const BlogDetails = () => {
     enabled: Boolean(articleSlug),
     staleTime: CATEGORY_STALE_TIME,
     gcTime: CATEGORY_CACHE_TIME,
-    refetchOnMount: 'always',
     retry: 1,
     retryDelay: 1000,
   });
@@ -189,10 +189,13 @@ const BlogDetails = () => {
   const relatedQuery = useQuery({
     queryKey: categoryQueryKeys.relatedPosts(primaryCategorySlug || 'none', articleSlug),
     queryFn: () =>
-      fetchRelatedPostsQuery({
-        categorySlug: primaryCategorySlug,
-        slug: articleSlug,
-      }),
+      fetchRelatedPostsQuery(
+        {
+          categorySlug: primaryCategorySlug,
+          slug: articleSlug,
+        },
+        queryClient,
+      ),
     enabled: Boolean(primaryCategorySlug),
     staleTime: CATEGORY_STALE_TIME,
     gcTime: CATEGORY_CACHE_TIME,

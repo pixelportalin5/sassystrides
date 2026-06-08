@@ -1,8 +1,10 @@
 import { ArrowUpRight } from 'lucide-react';
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { stripHtml } from '../services/wordpressApi';
+import PostImage from './PostImage';
 
-const HeroSection = ({ posts = [] }) => {
+const HeroSection = memo(({ posts = [] }) => {
   const hero = posts[0];
   const latest = posts.slice(1, 5);
 
@@ -46,15 +48,13 @@ const HeroSection = ({ posts = [] }) => {
         to={`/blog/${hero.slug}`}
         className="group relative min-h-[520px] overflow-hidden border-b border-ink/10 lg:border-b-0 lg:border-r"
       >
-        <img
-          src={hero.image}
+        <PostImage
+          src={hero.heroImage || hero.image}
           alt={hero.imageAlt}
           srcSet={hero.imageSrcSet}
           sizes="(min-width: 1024px) 48vw, 100vw"
+          priority
           className="h-full w-full object-cover object-center saturate-[0.82] transition duration-700 group-hover:scale-[1.025] group-hover:saturate-100"
-          loading="eager"
-          decoding="async"
-          fetchPriority="high"
         />
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-espresso/80 to-transparent p-8 text-porcelain">
           <p className="micro-label mb-3 text-champagne">{hero.categoryName}</p>
@@ -93,6 +93,8 @@ const HeroSection = ({ posts = [] }) => {
       </aside>
     </section>
   );
-};
+});
+
+HeroSection.displayName = 'HeroSection';
 
 export default HeroSection;

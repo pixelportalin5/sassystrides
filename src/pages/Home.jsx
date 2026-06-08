@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import AdSlot from '../components/ads/AdSlot';
 import HomepageSponsorRow from '../components/ads/HomepageSponsorRow';
@@ -9,7 +10,9 @@ import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
 import InstagramGallery from '../components/InstagramGallery';
 import Navbar from '../components/Navbar';
+import HomeSkeleton from '../components/skeletons/HomeSkeleton';
 import { usePosts } from '../hooks/usePosts';
+import { prefetchHomepageAds } from '../services/adQueries';
 import { validateAllConfiguredAds } from '../services/advancedAdsService';
 import { stripHtml } from '../services/wordpressApi';
 
@@ -130,11 +133,17 @@ const FashionCities = ({ posts = [] }) => (
 );
 
 const Home = () => {
+  const queryClient = useQueryClient();
   const { posts, categories, loading, error } = usePosts();
 
   useEffect(() => {
+    prefetchHomepageAds(queryClient);
     validateAllConfiguredAds();
-  }, []);
+  }, [queryClient]);
+
+  if (loading && !posts.length) {
+    return <HomeSkeleton />;
+  }
 
   if (!loading && (error || !posts.length)) {
     return (
@@ -194,7 +203,7 @@ const Home = () => {
         <FashionCities posts={posts.slice(10, 16)} />
         <AdSlot page="homepage" slot={10} variant="magazine" />
 
-        <AdSlot page="homepage" slot={12} variant="section-full" />
+        <AdSlot page="homepage" slot={13} variant="homepage-ad-centered" />
 
         <InstagramGallery posts={posts.slice(0, 8)} gridSlot={14} />
         <AdSlot page="homepage" slot={15} variant="magazine" />

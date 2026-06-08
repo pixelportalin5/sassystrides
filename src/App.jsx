@@ -8,7 +8,17 @@ const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ContentPage = lazy(() => import('./pages/ContentPage'));
 
 const RouteFallback = () => (
-  <div className="min-h-[60vh] bg-ivory" aria-label="Loading page" />
+  <div className="min-h-[60vh] bg-ivory" aria-label="Loading page">
+    <div className="editorial-container space-y-6 py-10">
+      <div className="h-10 w-48 animate-pulse bg-espresso/10" />
+      <div className="h-[420px] animate-pulse bg-champagne/60" />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {[0, 1, 2].map((item) => (
+          <div key={item} className="h-72 animate-pulse border border-ink/10 bg-porcelain" />
+        ))}
+      </div>
+    </div>
+  </div>
 );
 
 const App = () => {

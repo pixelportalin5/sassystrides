@@ -15,7 +15,6 @@ export const usePosts = () => {
     queryKey: categoryQueryKeys.homepagePosts,
     queryFn: fetchHomepagePostsQuery,
     staleTime: CATEGORY_STALE_TIME,
-    cacheTime: CATEGORY_CACHE_TIME,
     gcTime: CATEGORY_CACHE_TIME,
   });
 
@@ -27,9 +26,12 @@ export const usePosts = () => {
   const error = postsQuery.error || null;
 
   useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return;
+    }
+
     if (!homepageTimerRef.current) {
       console.time('homepage');
-      console.log('Fetching homepage');
       homepageTimerRef.current = true;
     }
 
@@ -38,24 +40,6 @@ export const usePosts = () => {
       homepageTimerRef.current = false;
     }
   }, [loading]);
-
-  useEffect(() => {
-    console.log('Homepage query state', {
-      status: postsQuery.status,
-      isLoading: postsQuery.isLoading,
-      isFetching: postsQuery.isFetching,
-      isError: postsQuery.isError,
-      postCount: normalizedPosts.length,
-      error: postsQuery.error?.message || null,
-    });
-  }, [
-    normalizedPosts.length,
-    postsQuery.error,
-    postsQuery.isError,
-    postsQuery.isFetching,
-    postsQuery.isLoading,
-    postsQuery.status,
-  ]);
 
   return {
     categories: [],

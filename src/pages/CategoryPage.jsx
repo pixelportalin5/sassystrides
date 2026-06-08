@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import AdSlot from '../components/ads/AdSlot';
 import CategoryHero from '../components/CategoryHero';
@@ -15,6 +15,7 @@ import {
   normalizePosts,
   slugify,
 } from '../services/categoryQueries';
+import { prefetchCategoryAds } from '../services/adQueries';
 import { validateAllConfiguredAds } from '../services/advancedAdsService';
 import { isFeaturedPage } from '../utils/featuredPages';
 import {
@@ -152,6 +153,7 @@ const sortPosts = (posts, sort) =>
   });
 
 const CategoryPage = () => {
+  const queryClient = useQueryClient();
   const params = useParams();
   const location = useLocation();
   const routeSlug = getRouteSlug(location, params);
@@ -169,7 +171,6 @@ const CategoryPage = () => {
       }),
     enabled: Boolean(routeSlug),
     staleTime: CATEGORY_STALE_TIME,
-    cacheTime: CATEGORY_CACHE_TIME,
     gcTime: CATEGORY_CACHE_TIME,
   });
 
@@ -218,9 +219,10 @@ const CategoryPage = () => {
 
   useEffect(() => {
     if (isFeaturedPage(routeSlug)) {
+      prefetchCategoryAds(queryClient);
       validateAllConfiguredAds();
     }
-  }, [routeSlug]);
+  }, [queryClient, routeSlug]);
 
   useEffect(() => {
     const label = totalLoadLabelRef.current;

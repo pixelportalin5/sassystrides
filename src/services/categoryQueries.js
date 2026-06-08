@@ -23,7 +23,13 @@ export const slugify = (value = '') =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 
+const isDev = import.meta.env.DEV;
+
 const timedRequest = async (label, request) => {
+  if (!isDev) {
+    return request();
+  }
+
   console.time(label);
   try {
     return await request();
@@ -69,9 +75,15 @@ export const fetchPostBySlugQuery = async (slug) => {
   return article;
 };
 
-export const fetchRelatedPostsQuery = async ({ categorySlug, slug }) => {
+export const fetchRelatedPostsQuery = async ({ categorySlug, slug }, queryClient) => {
   if (!categorySlug) {
     return [];
+  }
+
+  const cached = queryClient?.getQueryData(categoryQueryKeys.categoryPosts(categorySlug));
+
+  if (cached?.posts?.length) {
+    return cached.posts.filter((post) => post.slug !== slug);
   }
 
   const result = await timedRequest(`Related:${categorySlug}`, () =>
@@ -92,6 +104,30 @@ export const prefetchCategoryData = (queryClient, slug) => {
       fetchCategoryPostsQuery({
         slug: normalizedSlug,
       }),
+    staleTime: CATEGORY_STALE_TIME,
+    gcTime: CATEGORY_CACHE_TIME,
+  });
+};
+
+export const prefetchPostData = (queryClient, slug) => {
+  const normalizedSlug = String(slug || '').trim();
+
+  if (!normalizedSlug) {
+    return;
+  }
+
+  queryClient.prefetchQuery({
+    queryKey: categoryQueryKeys.postBySlug(normalizedSlug),
+    queryFn: () => fetchPostBySlugQuery(normalizedSlug),
+    staleTime: CATEGORY_STALE_TIME,
+    gcTime: CATEGORY_CACHE_TIME,
+  });
+};
+
+export const prefetchHomepageData = (queryClient) => {
+  queryClient.prefetchQuery({
+    queryKey: categoryQueryKeys.homepagePosts,
+    queryFn: fetchHomepagePostsQuery,
     staleTime: CATEGORY_STALE_TIME,
     gcTime: CATEGORY_CACHE_TIME,
   });

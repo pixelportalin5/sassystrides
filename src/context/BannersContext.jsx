@@ -25,10 +25,9 @@ export const BannersProvider = ({ children }) => {
         setBanners(nextBanners);
         setIsLoading(false);
 
-        console.log('Total banners from API:', nextBanners.length);
-        nextBanners.forEach((banner) => {
-          console.log('Rendering banner', banner.id);
-        });
+        if (import.meta.env.DEV) {
+          console.log('Total banners from API:', nextBanners.length);
+        }
       })
       .catch(() => {
         if (!cancelled) {

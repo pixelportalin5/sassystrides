@@ -64,7 +64,6 @@ const browserFetchAdapter = async (config) => {
   const url = axios.getUri(config);
   const method = (config.method || 'get').toUpperCase();
 
-  console.log('[wordpress] request URL:', url);
   logDebug('request', { method, url });
 
   const response = await fetch(url, {
@@ -171,11 +170,20 @@ const parsePostResponse = (data) => {
   return null;
 };
 
-const getImageUrl = (post) =>
+const getCardImageUrl = (post) =>
+  post?.image?.medium_large ||
+  post?.image?.medium ||
   post?.image?.url ||
+  post?.thumbnail ||
+  post?.image?.large ||
+  DEFAULT_ARTICLE_IMAGE;
+
+const getHeroImageUrl = (post) =>
   post?.hero ||
   post?.image?.hero ||
+  post?.image?.large ||
   post?.image?.full ||
+  post?.image?.url ||
   post?.thumbnail ||
   DEFAULT_ARTICLE_IMAGE;
 
@@ -194,9 +202,8 @@ const getTitleText = (post) => {
 };
 
 const normalizeSassyCard = (post) => {
-  const image = getImageUrl(post);
-  const heroImage =
-    post?.hero || post?.image?.hero || post?.image?.full || image || DEFAULT_ARTICLE_IMAGE;
+  const image = getCardImageUrl(post);
+  const heroImage = getHeroImageUrl(post);
 
   return {
     id: post?.id,

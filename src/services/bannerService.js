@@ -1,17 +1,14 @@
-import { getSassyApiBaseUrl } from '../config/wordpress';
+import { loadHomepageBanners } from './advancedAdsService';
 
 export const fetchBanners = async () => {
-  const response = await fetch(`${getSassyApiBaseUrl()}/banners`, {
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
-  });
+  const bannersById = await loadHomepageBanners();
 
-  if (!response.ok) {
-    throw new Error(`Banner request failed with status ${response.status}`);
-  }
-
-  const data = await response.json();
-  return Array.isArray(data) ? data : [];
+  return Array.from(bannersById.values()).map((banner) => ({
+    id: banner.id,
+    html: banner.html,
+    shortcode: banner.shortcode,
+    title: banner.title,
+  }));
 };
 
 export const isRenderableBanner = (banner) => {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { getAdIdForSlot } from '../../constants/adSlotMappings';
-import { fetchAdById, getAdImageUrl } from '../../services/advancedAdsService';
+import { useAd } from '../../hooks/useAd';
+import { getAdImageUrl } from '../../services/advancedAdsService';
 
 const AdBannerFrame = ({ ad, imageUrl, size = 'horizontal' }) => {
   if (!ad || !imageUrl) {
@@ -37,18 +37,12 @@ const AdBannerFrame = ({ ad, imageUrl, size = 'horizontal' }) => {
 const AdSlot = ({ page = 'homepage', slot, variant = 'horizontal', className = '' }) => {
   const adId = getAdIdForSlot(page, slot);
 
-  const { data: ad, isSuccess, isFetching } = useQuery({
-    queryKey: ['advanced-ad', adId],
-    queryFn: () => fetchAdById(adId),
-    enabled: Boolean(adId),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
+  const { data: ad, isSuccess, isFetching } = useAd(adId);
 
   const imageUrl = getAdImageUrl(ad);
 
   useEffect(() => {
-    if (!adId || page !== 'homepage' || !isSuccess) {
+    if (!import.meta.env.DEV || !adId || page !== 'homepage' || !isSuccess) {
       return;
     }
 
@@ -95,6 +89,14 @@ const AdSlot = ({ page = 'homepage', slot, variant = 'horizontal', className = '
         <div className="section-ad-row section-ad-row--full section-ad-row--edge">
           {frame}
         </div>
+      </section>
+    );
+  }
+
+  if (variant === 'homepage-ad-centered') {
+    return (
+      <section className={`editorial-container ad-slot-centered ${className}`.trim()}>
+        {frame}
       </section>
     );
   }

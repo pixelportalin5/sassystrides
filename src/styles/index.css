@@ -587,6 +587,62 @@ img {
   width: 100%;
 }
 
+.ad-slot-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.ad-slot-centered .ad-banner,
+.ad-slot-centered .ad-banner--horizontal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  max-width: 100%;
+}
+
+.ad-slot-centered .ad-banner__frame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.ad-slot-centered .ad-banner__frame > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  max-width: 100%;
+  text-align: center;
+}
+
+.ad-slot-centered .ad-banner__frame > div a {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+}
+
+.ad-slot-centered .ad-banner__frame > div img,
+.ad-slot-centered .ad-slot__image,
+.ad-slot-centered img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-inline: auto;
+}
+
 .newsletter-top-banner {
   margin-bottom: 1rem;
 }
