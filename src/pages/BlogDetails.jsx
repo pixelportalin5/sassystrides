@@ -30,13 +30,6 @@ import {
 } from '../services/wordpressApi';
 const TrendingWidget = lazy(() => import('../components/TrendingWidget'));
 
-const formatDate = (date) =>
-  new Intl.DateTimeFormat('en', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(date));
-
 const getAuthorAvatar = (post) => post?.authorAvatar || DEFAULT_AUTHOR_AVATAR;
 
 const ArticleSkeleton = () => (
@@ -95,10 +88,7 @@ const NewsletterWidget = memo(() => (
         placeholder="Email address"
         className="h-11 w-full border border-porcelain/20 bg-porcelain/8 px-4 text-sm outline-none placeholder:text-porcelain/50"
       />
-      <button
-        type="submit"
-        className="w-full bg-porcelain px-5 py-3 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-espresso transition hover:bg-champagne"
-      >
+      <button type="submit" className="btn-cta btn-cta--inverse btn-cta--full">
         Subscribe
       </button>
     </form>
@@ -297,10 +287,7 @@ const BlogDetails = () => {
               Unable to load article.
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-taupe">{message}</p>
-            <Link
-              to="/"
-              className="mt-8 inline-block bg-espresso px-7 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-porcelain"
-            >
+            <Link to="/" className="btn-cta btn-cta--primary mt-8">
               Return Home
             </Link>
           </div>
@@ -317,10 +304,7 @@ const BlogDetails = () => {
           <div>
             <p className="micro-label mb-4 text-bronze">Sassy Strides</p>
             <h1 className="serif-title text-6xl leading-none text-espresso">Article not found.</h1>
-            <Link
-              to="/"
-              className="mt-8 inline-block bg-espresso px-7 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-porcelain"
-            >
+            <Link to="/" className="btn-cta btn-cta--primary mt-8">
               Return Home
             </Link>
           </div>
@@ -366,15 +350,15 @@ const BlogDetails = () => {
                 <div className="flex flex-wrap items-center gap-4">
                   <img
                     src={authorAvatar}
-                    alt={post.authorName}
+                    alt="Sassy Strides"
                     className="h-14 w-14 rounded-full object-cover saturate-[0.85]"
                     loading="lazy"
                     decoding="async"
                   />
                   <div>
-                    <p className="text-sm font-semibold text-espresso">By {post.authorName}</p>
+                    <p className="text-sm font-semibold text-espresso">By Sassy Strides</p>
                     <p className="mt-1 text-[0.62rem] uppercase tracking-[0.18em] text-taupe">
-                      {formatDate(post.date)} · {readingTime} Min Read
+                      {readingTime} Min Read
                     </p>
                   </div>
                 </div>
@@ -388,7 +372,7 @@ const BlogDetails = () => {
                 alt={post.imageAlt}
                 srcSet={post.imageSrcSet}
                 sizes="(min-width: 1024px) 980px, 100vw"
-                className="h-[360px] w-full object-cover object-center saturate-[0.82] sm:h-[520px] lg:h-[640px]"
+                className="article-hero-image w-full object-cover object-center saturate-[0.82]"
                 loading="eager"
                 decoding="async"
                 fetchPriority="high"

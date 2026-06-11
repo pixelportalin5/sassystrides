@@ -26,11 +26,11 @@ const TrendingWidget = ({ posts = [] }) => {
               loading="lazy"
               decoding="async"
             />
-            <div>
+            <div className="min-w-0 pr-1">
               <p className="mb-2 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-taupe">
                 {String(index + 1).padStart(2, '0')}
               </p>
-              <h4 className="serif-title line-clamp-3 text-2xl leading-none text-espresso transition group-hover:text-bronze">
+              <h4 className="trending-widget__title serif-title line-clamp-3 text-xl leading-[1.1] text-espresso transition group-hover:text-bronze sm:text-2xl">
                 {stripHtml(post.title.rendered)}
               </h4>
             </div>

@@ -5,13 +5,6 @@ import { stripHtml } from '../services/wordpressApi';
 import { isFeaturedPage } from '../utils/featuredPages';
 import AdSlot from './ads/AdSlot';
 
-const formatDate = (date) =>
-  new Intl.DateTimeFormat('en', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(date));
-
 const CategoryPostCard = ({ post, view }) => {
   if (!post) {
     return null;
@@ -21,8 +14,8 @@ const CategoryPostCard = ({ post, view }) => {
 
   return (
     <article
-      className={`group bg-porcelain transition duration-500 hover:-translate-y-1 hover:shadow-soft ${
-        isList ? 'grid gap-4 border border-ink/10 p-3 sm:grid-cols-[220px_1fr]' : ''
+      className={`category-post-card group min-w-0 bg-porcelain transition duration-500 hover:-translate-y-1 hover:shadow-soft ${
+        isList ? 'grid gap-4 border border-ink/10 p-3 sm:grid-cols-[220px_1fr]' : 'border border-ink/10'
       }`}
     >
       <Link
@@ -39,20 +32,23 @@ const CategoryPostCard = ({ post, view }) => {
           decoding="async"
         />
       </Link>
-      <div className={isList ? 'flex flex-col justify-center p-2' : 'pt-4'}>
+      <div
+        className={
+          isList
+            ? 'flex min-w-0 flex-col justify-center px-3 py-2 sm:px-4'
+            : 'category-post-card__body min-w-0 px-4 pb-5 pt-4 sm:px-5'
+        }
+      >
         <p className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-taupe">
           {post.categoryName}
         </p>
-        <Link to={`/blog/${post.slug}`}>
-          <h3 className="serif-title mt-2 line-clamp-2 text-3xl leading-[0.92] text-espresso transition group-hover:text-bronze">
+        <Link to={`/blog/${post.slug}`} className="mt-2 block">
+          <h3 className="category-post-card__title serif-title line-clamp-3 text-2xl leading-[1.08] text-espresso transition group-hover:text-bronze sm:text-3xl">
             {stripHtml(post.title.rendered)}
           </h3>
         </Link>
-        <p className="mt-3 line-clamp-3 text-xs leading-5 text-taupe">
+        <p className="category-post-card__excerpt mt-3 line-clamp-4 text-sm leading-6 text-taupe">
           {stripHtml(post.excerpt.rendered)}
-        </p>
-        <p className="mt-4 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-taupe">
-          {formatDate(post.date)}
         </p>
       </div>
     </article>
@@ -143,9 +139,7 @@ const CategoryPostGrid = ({
               type="button"
               aria-label="Grid view"
               onClick={() => onViewChange('grid')}
-              className={`grid h-8 w-8 place-items-center border border-ink/10 ${
-                view === 'grid' ? 'bg-espresso text-porcelain' : 'bg-porcelain text-espresso'
-              }`}
+              className={`category-view-toggle ${view === 'grid' ? 'is-active' : ''}`}
             >
               <Grid2X2 size={15} strokeWidth={1.4} />
             </button>
@@ -153,9 +147,7 @@ const CategoryPostGrid = ({
               type="button"
               aria-label="List view"
               onClick={() => onViewChange('list')}
-              className={`grid h-8 w-8 place-items-center border border-ink/10 ${
-                view === 'list' ? 'bg-espresso text-porcelain' : 'bg-porcelain text-espresso'
-              }`}
+              className={`category-view-toggle ${view === 'list' ? 'is-active' : ''}`}
             >
               <List size={15} strokeWidth={1.4} />
             </button>
@@ -165,7 +157,7 @@ const CategoryPostGrid = ({
 
       {isLoading ? (
         <div
-          className={`mt-5 grid gap-x-6 gap-y-8 ${
+          className={`editorial-image-grid mt-5 grid ${
             view === 'list' ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'
           }`}
         >
@@ -180,7 +172,7 @@ const CategoryPostGrid = ({
         </div>
       ) : posts.length ? (
         <div
-          className={`mt-5 grid gap-x-6 gap-y-8 ${
+          className={`editorial-image-grid mt-5 grid ${
             view === 'list' ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'
           }`}
         >

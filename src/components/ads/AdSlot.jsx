@@ -82,6 +82,46 @@ const AdSlot = ({ page = 'homepage', slot, variant = 'horizontal', className = '
     );
   }
 
+  if (variant === 'hero-billboard') {
+    return (
+      <div className={`homepage-ad-hero-billboard editorial-container ${className}`.trim()}>
+        {frame}
+      </div>
+    );
+  }
+
+  if (variant === 'inline-billboard') {
+    return (
+      <div className={`homepage-ad-inline-billboard ${className}`.trim()}>
+        {frame}
+      </div>
+    );
+  }
+
+  if (variant === 'inline-banner') {
+    return (
+      <div className={`homepage-ad-inline-banner editorial-container ${className}`.trim()}>
+        {frame}
+      </div>
+    );
+  }
+
+  if (variant === 'style-mood-sponsor') {
+    return (
+      <div className={`homepage-ad-style-mood editorial-container ${className}`.trim()}>
+        {frame}
+      </div>
+    );
+  }
+
+  if (variant === 'sidebar-skyscraper') {
+    return (
+      <div className={`homepage-ad-sidebar-skyscraper ${className}`.trim()}>
+        <AdBannerFrame ad={ad} imageUrl={imageUrl} size="card" />
+      </div>
+    );
+  }
+
   if (variant === 'grid-card') {
     return (
       <div className={`grid-ad-card grid-ad-card--bare ${className}`.trim()}>

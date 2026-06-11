@@ -1,51 +1,78 @@
+import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import BlogCard from './BlogCard';
 import { stripHtml } from '../services/wordpressApi';
+import PostImage from './PostImage';
 
 const FeaturedStories = ({ posts = [] }) => {
   const main = posts[0];
-  const side = posts.slice(1, 5);
+  const side = posts.slice(1, 4);
 
   if (!main) {
     return null;
   }
 
   return (
-    <section id="featured" className="editorial-container py-8">
-      <div className="mb-4 flex items-end justify-between border-b border-ink/10 pb-3">
+    <section id="featured" className="featured-stories">
+      <div className="featured-stories__header">
         <h2 className="micro-label text-espresso">Featured Stories</h2>
         <Link
           to={`/blog/${main.slug}`}
-          className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-taupe hover:text-bronze"
+          className="featured-stories__view-all"
         >
           View All Stories
+          <ArrowUpRight size={14} strokeWidth={1.5} />
         </Link>
       </div>
-      <div className="grid gap-4 lg:grid-cols-[1.35fr_0.85fr]">
-        <BlogCard post={main} variant="large" />
-        <div className="grid gap-px border border-ink/10 bg-ink/10">
+
+      <div className="featured-stories__grid">
+        <article className="featured-stories__main group">
+          <Link to={`/blog/${main.slug}`} className="featured-stories__main-image">
+            <PostImage
+              src={main.heroImage || main.image}
+              alt={main.imageAlt}
+              srcSet={main.imageSrcSet}
+              sizes="(min-width: 1024px) 58vw, 100vw"
+              priority
+              className="h-full w-full object-cover saturate-[0.82] transition duration-700 group-hover:scale-[1.02] group-hover:saturate-100"
+            />
+          </Link>
+          <div className="featured-stories__main-copy">
+            <p className="micro-label mb-3 text-bronze">{main.categoryName}</p>
+            <Link to={`/blog/${main.slug}`}>
+              <h3 className="serif-title text-3xl leading-[0.95] text-espresso transition group-hover:text-bronze sm:text-4xl lg:text-5xl">
+                {stripHtml(main.title.rendered)}
+              </h3>
+            </Link>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-taupe">
+              {stripHtml(main.excerpt.rendered)}
+            </p>
+            <Link to={`/blog/${main.slug}`} className="featured-stories__read-link">
+              Read Story
+              <ArrowUpRight size={14} strokeWidth={1.5} />
+            </Link>
+          </div>
+        </article>
+
+        <div className="featured-stories__side">
           {side.map((post) => (
             <Link
               key={post.id}
               to={`/blog/${post.slug}`}
-              className="group grid grid-cols-[96px_1fr] gap-4 bg-porcelain p-3 transition hover:bg-parchment sm:grid-cols-[130px_1fr]"
+              className="featured-stories__side-item group"
             >
               <img
                 src={post.image}
                 alt={post.imageAlt}
                 srcSet={post.imageSrcSet}
-                sizes="130px"
-                className="h-24 w-full object-cover saturate-[0.82] transition duration-500 group-hover:saturate-100 sm:h-28"
+                sizes="120px"
+                className="featured-stories__side-thumb"
                 loading="lazy"
                 decoding="async"
               />
-              <span className="flex flex-col justify-center">
-                <span className="micro-label mb-2 text-bronze">{post.categoryName}</span>
-                <span className="serif-title line-clamp-2 text-2xl leading-none text-espresso group-hover:text-bronze">
+              <span className="featured-stories__side-copy">
+                <span className="micro-label mb-2 block text-bronze">{post.categoryName}</span>
+                <span className="serif-title line-clamp-3 text-xl leading-none text-espresso transition group-hover:text-bronze sm:text-2xl">
                   {stripHtml(post.title.rendered)}
-                </span>
-                <span className="mt-2 line-clamp-2 text-xs leading-5 text-taupe">
-                  {stripHtml(post.excerpt.rendered)}
                 </span>
               </span>
             </Link>

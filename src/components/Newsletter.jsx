@@ -23,7 +23,7 @@ const Newsletter = ({ topSlot, rightSlot }) => (
           />
           <button
             type="submit"
-            className="bg-espresso px-7 py-4 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-porcelain transition hover:bg-bronze"
+            className="btn-cta btn-cta--primary w-full sm:w-auto"
           >
             Subscribe
           </button>

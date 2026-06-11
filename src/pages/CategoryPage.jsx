@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import AdSlot from '../components/ads/AdSlot';
@@ -18,10 +18,6 @@ import {
 import { prefetchCategoryAds } from '../services/adQueries';
 import { validateAllConfiguredAds } from '../services/advancedAdsService';
 import { isFeaturedPage } from '../utils/featuredPages';
-import {
-  stripHtml,
-} from '../services/wordpressApi';
-
 const Newsletter = lazy(() => import('../components/Newsletter'));
 const TrendingWidget = lazy(() => import('../components/TrendingWidget'));
 
@@ -33,22 +29,6 @@ const canonicalCategoryMeta = {
   trends: { id: 23, name: 'Trends', slug: 'trends', description: '' },
   news: { id: 47, name: 'News', slug: 'news', description: '' },
 };
-const brandOptions = ['Dior', 'Prada', 'Chanel', 'Celine', 'Max Mara', 'Gucci', 'Saint Laurent', 'Zara', 'Mango'];
-const colorOptions = [
-  { label: 'Cream', value: 'cream', hex: '#f4ead8' },
-  { label: 'Black', value: 'black', hex: '#14110f' },
-  { label: 'Beige', value: 'beige', hex: '#d9c2a2' },
-  { label: 'White', value: 'white', hex: '#fffaf1' },
-  { label: 'Gray', value: 'gray', hex: '#7b7770' },
-];
-
-const initialFilters = {
-  categories: [],
-  brands: [],
-  colors: [],
-  tags: [],
-};
-
 const getRouteSlug = (location, params) => {
   if (params.slug) {
     return slugify(decodeURIComponent(params.slug));
@@ -57,85 +37,6 @@ const getRouteSlug = (location, params) => {
   const pathnameSlug = slugify(decodeURIComponent(location.pathname.split('/').filter(Boolean)[0] || ''));
   return canonicalCategories.includes(pathnameSlug) ? pathnameSlug : 'fashion';
 };
-
-const getPostSearchText = (post) =>
-  [
-    post?.title?.rendered,
-    post?.excerpt?.rendered,
-    post?.content?.rendered,
-    post?.categoryName,
-    ...(post?.tagNames || []),
-  ]
-    .map(stripHtml)
-    .join(' ')
-    .toLowerCase();
-
-const postMatchesTerm = (post, value) => {
-  const text = getPostSearchText(post);
-  return text.includes(value) || slugify(text).includes(value);
-};
-
-const createTextOptions = (items, posts) =>
-  items
-    .map((item) => {
-      const value = typeof item === 'string' ? slugify(item) : item.value;
-      const label = typeof item === 'string' ? item : item.label;
-      const count = posts.filter((post) => postMatchesTerm(post, value)).length;
-      return { ...(typeof item === 'string' ? {} : item), label, value, count };
-    })
-    .filter((item) => item.count > 0 || ['cream', 'black', 'beige', 'white', 'gray'].includes(item.value));
-
-const createFilterOptions = (posts) => {
-  const categoryMap = new Map();
-  const tagMap = new Map();
-
-  posts.forEach((post) => {
-    if (post.categoryName) {
-      const value = post.categorySlug || slugify(post.categoryName);
-      const current = categoryMap.get(value) || { label: post.categoryName, value, count: 0 };
-      current.count += 1;
-      categoryMap.set(value, current);
-    }
-
-    (post.tagNames || []).forEach((tagName) => {
-      const value = slugify(tagName);
-      const current = tagMap.get(value) || { label: tagName, value, count: 0 };
-      current.count += 1;
-      tagMap.set(value, current);
-    });
-  });
-
-  return {
-    categories: [...categoryMap.values()].slice(0, 8),
-    brands: createTextOptions(brandOptions, posts),
-    colors: createTextOptions(colorOptions, posts),
-    tags: [...tagMap.values()].slice(0, 10),
-  };
-};
-
-const filterPosts = (posts, filters) =>
-  posts.filter((post) => {
-    const categoryValue = post.categorySlug || slugify(post.categoryName);
-    const tagValues = post.tagSlugs?.length ? post.tagSlugs : (post.tagNames || []).map(slugify);
-
-    if (filters.categories.length && !filters.categories.includes(categoryValue)) {
-      return false;
-    }
-
-    if (filters.brands.length && !filters.brands.some((brand) => postMatchesTerm(post, brand))) {
-      return false;
-    }
-
-    if (filters.colors.length && !filters.colors.some((color) => postMatchesTerm(post, color))) {
-      return false;
-    }
-
-    if (filters.tags.length && !filters.tags.some((tag) => tagValues.includes(tag))) {
-      return false;
-    }
-
-    return true;
-  });
 
 const sortPosts = (posts, sort) =>
   [...posts].sort((a, b) => {
@@ -158,7 +59,6 @@ const CategoryPage = () => {
   const location = useLocation();
   const routeSlug = getRouteSlug(location, params);
 
-  const [filters, setFilters] = useState(initialFilters);
   const [sort, setSort] = useState('latest');
   const [view, setView] = useState('grid');
   const totalLoadLabelRef = useRef('');
@@ -207,7 +107,6 @@ const CategoryPage = () => {
   );
 
   useEffect(() => {
-    setFilters(initialFilters);
     setSort('latest');
     setView('grid');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -242,29 +141,7 @@ const CategoryPage = () => {
     }
   }, [postsQuery.isSuccess, postsQuery.isError]);
 
-  const filterOptions = useMemo(() => createFilterOptions(posts), [posts]);
-  const displayedPosts = useMemo(
-    () => sortPosts(filterPosts(posts, filters), sort),
-    [posts, filters, sort],
-  );
-  const hasActiveFilters = useMemo(
-    () => Object.values(filters).some((values) => values.length > 0),
-    [filters],
-  );
-
-  const toggleFilter = useCallback((group, value) => {
-    setFilters((current) => {
-      const values = current[group];
-      return {
-        ...current,
-        [group]: values.includes(value)
-          ? values.filter((item) => item !== value)
-          : [...values, value],
-      };
-    });
-  }, []);
-
-  const clearFilters = useCallback(() => setFilters(initialFilters), []);
+  const displayedPosts = useMemo(() => sortPosts(posts, sort), [posts, sort]);
   const isPostsLoading = postsQuery.isLoading && !posts.length;
   const hasApiError = postsQuery.isError;
   const trendingPosts = posts.slice(0, 5);
@@ -274,7 +151,12 @@ const CategoryPage = () => {
     <div className="min-h-screen bg-ivory text-ink">
       <Navbar />
       <main className="space-y-6 pb-8">
-        <CategoryHero category={activeCategory} heroPost={posts[0] || trendingPosts[0]} categories={categories} />
+        <CategoryHero
+          category={activeCategory}
+          heroPost={posts[0] || trendingPosts[0]}
+          categories={categories}
+          parentSlug={routeSlug}
+        />
 
         {showFeaturedAds ? (
           <AdSlot page="category" slot={4} variant="category-billboard" className="pb-2" />
@@ -284,10 +166,7 @@ const CategoryPage = () => {
           <CategorySidebar
             category={activeCategory}
             categories={categories}
-            filters={filters}
-            filterOptions={filterOptions}
-            onToggleFilter={toggleFilter}
-            onClearFilters={clearFilters}
+            parentSlug={routeSlug}
           />
 
           <CategoryPostGrid
@@ -302,8 +181,6 @@ const CategoryPage = () => {
             emptyMessage={
               hasApiError
                 ? 'Unable to connect to WordPress.'
-                : posts.length && hasActiveFilters
-                ? 'Refine your filters to continue browsing.'
                 : 'No articles found in this category.'
             }
           />

@@ -275,24 +275,24 @@ export const loadHomepageBanners = async () => {
       }
 
       const data = await fetchJson(`${getSassyApiBaseUrl()}/banners`);
-        const banners = Array.isArray(data) ? data : [];
-        const byId = new Map();
+      const banners = Array.isArray(data) ? data : [];
+      const byId = new Map();
 
-        if (isDev) {
-          console.log('[advancedAdsService] Homepage banners API count:', banners.length);
-          console.log(
-            '[advancedAdsService] Homepage banners API IDs:',
-            banners.map((banner) => banner.id),
-          );
+      if (isDev) {
+        console.log('[advancedAdsService] Homepage banners API count:', banners.length);
+        console.log(
+          '[advancedAdsService] Homepage banners API IDs:',
+          banners.map((banner) => banner.id),
+        );
+      }
+
+      banners.forEach((banner) => {
+        const normalized = normalizeSassyBanner(banner);
+        if (isRenderableAd(normalized)) {
+          byId.set(normalized.id, normalized);
+          setCache(normalized.id, normalized);
         }
-
-        banners.forEach((banner) => {
-          const normalized = normalizeSassyBanner(banner);
-          if (isRenderableAd(normalized)) {
-            byId.set(normalized.id, normalized);
-            setCache(normalized.id, normalized);
-          }
-        });
+      });
 
       return byId;
     })().catch((error) => {

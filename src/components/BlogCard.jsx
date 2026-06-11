@@ -28,7 +28,7 @@ const BlogCard = memo(({ post, variant = 'default', index = 1 }) => {
 
   return (
     <article
-      className={`group relative overflow-hidden border border-ink/10 bg-porcelain shadow-soft transition duration-500 hover:-translate-y-1 hover:shadow-editorial ${
+      className={`group relative min-w-0 overflow-hidden border border-ink/10 bg-porcelain shadow-soft transition duration-500 hover:-translate-y-1 hover:shadow-editorial ${
         isHorizontal ? 'grid grid-cols-[120px_1fr] sm:grid-cols-[160px_1fr]' : ''
       }`}
       onMouseEnter={prefetchPost}
@@ -63,26 +63,26 @@ const BlogCard = memo(({ post, variant = 'default', index = 1 }) => {
         </div>
       </Link>
 
-      <div className={`${isHorizontal ? 'p-4 sm:p-5' : 'p-4 sm:p-5'} relative`}>
+      <div className="relative min-w-0 p-4 sm:p-5">
         <div className="mb-3 flex items-center gap-3 text-[0.62rem] uppercase tracking-[0.2em] text-bronze">
           <span>{post.categoryName}</span>
           <span className="h-px flex-1 bg-ink/10" />
         </div>
         <Link to={`/blog/${post.slug}`} onMouseEnter={prefetchPost} onFocus={prefetchPost}>
           <h3
-            className={`serif-title text-ink transition duration-300 group-hover:text-bronze ${
+            className={`category-post-card__title serif-title text-ink transition duration-300 group-hover:text-bronze ${
               isLarge
-                ? 'text-4xl leading-[0.92] md:text-5xl'
+                ? 'text-4xl leading-[1.02] md:text-5xl'
                 : isCompact
-                  ? 'text-2xl leading-none'
-                  : 'text-3xl leading-[0.95]'
+                  ? 'text-2xl leading-[1.08]'
+                  : 'text-3xl leading-[1.05]'
             }`}
           >
             {stripHtml(post.title.rendered)}
           </h3>
         </Link>
         {!isCompact && (
-          <p className="mt-3 line-clamp-3 text-sm leading-6 text-taupe">
+          <p className="category-post-card__excerpt mt-3 line-clamp-3 text-sm leading-6 text-taupe">
             {stripHtml(post.excerpt.rendered)}
           </p>
         )}
@@ -90,7 +90,7 @@ const BlogCard = memo(({ post, variant = 'default', index = 1 }) => {
           to={`/blog/${post.slug}`}
           onMouseEnter={prefetchPost}
           onFocus={prefetchPost}
-          className="mt-5 inline-flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-espresso transition hover:text-bronze"
+          className="btn-cta-text mt-5 inline-flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.2em]"
         >
           Read More
           <ArrowUpRight size={14} strokeWidth={1.5} />

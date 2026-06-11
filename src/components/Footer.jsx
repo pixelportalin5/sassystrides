@@ -1,47 +1,112 @@
+import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { socialLinks } from '../constants/social';
+import { LOGO_URL } from '../constants/subcategories';
 
-const footerGroups = {
-  Fashion: ['Runway', 'Street Style', 'Celebrity', 'Shopping'],
-  Beauty: ['Makeup', 'Skincare', 'Hair', 'Fragrance'],
-  Lifestyle: ['Culture', 'Travel', 'Interiors', 'Wellness'],
-  Trends: ['Seasonal', 'Accessories', 'Editors Picks', 'Moodboard'],
-  News: ['Magazine', 'Interviews', 'Events', 'Archives'],
+const categoryLinks = [
+  { label: 'Fashion', path: '/fashion' },
+  { label: 'Beauty', path: '/beauty' },
+  { label: 'Lifestyle', path: '/lifestyle' },
+  { label: 'Trends', path: '/trends' },
+  { label: 'News', path: '/news' },
+];
+
+const companyLinksColOne = [
+  { label: 'About Us', path: '/about' },
+  { label: 'Privacy Policy', path: '#' },
+  { label: 'Terms of Service', path: '#' },
+];
+
+const companyLinksColTwo = [
+  { label: 'Contact', path: '/contact' },
+  { label: 'Advertise', path: '/advertise' },
+];
+
+const socialIconMap = {
+  Instagram,
+  Facebook,
+  LinkedIn: Linkedin,
 };
 
+const FooterLink = ({ item, className }) =>
+  item.path === '#' ? (
+    <a href={item.path} className={className}>
+      {item.label}
+    </a>
+  ) : (
+    <Link to={item.path} className={className}>
+      {item.label}
+    </Link>
+  );
+
 const Footer = () => (
-  <footer className="mt-8 border-t border-ink/10 bg-parchment">
-    <div className="editorial-container grid gap-10 py-10 lg:grid-cols-[1.2fr_2fr]">
-      <div>
-        <Link to="/" className="serif-title text-4xl uppercase leading-none tracking-[0.08em]">
-          Sassy Strides
+  <footer className="site-footer">
+    <div className="editorial-container site-footer__inner">
+      <div className="site-footer__brand">
+        <Link to="/" className="site-footer__logo-link" aria-label="Sassy Strides homepage">
+          <img
+            src={LOGO_URL}
+            alt="Sassy Strides"
+            className="site-footer__logo"
+            loading="lazy"
+            decoding="async"
+          />
         </Link>
-        <p className="mt-4 max-w-sm text-sm leading-7 text-taupe">
-          A refined digital fashion magazine for elevated style, contemporary
-          beauty, and editorial culture.
-        </p>
-        <p className="mt-6 text-[0.62rem] uppercase tracking-[0.22em] text-taupe">
-          © 2026 Sassy Strides
-        </p>
+        <p className="site-footer__follow">Follow Us</p>
+        <div className="site-footer__social">
+          {socialLinks.map(({ label, href }) => {
+            const Icon = socialIconMap[label];
+
+            return (
+              <a
+                key={label}
+                href={href}
+                className="site-footer__social-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+              >
+                <Icon size={18} strokeWidth={1.5} />
+              </a>
+            );
+          })}
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-7 sm:grid-cols-5">
-        {Object.entries(footerGroups).map(([title, links]) => (
-          <div key={title}>
-            <h3 className="micro-label mb-4 text-espresso">{title}</h3>
-            <ul className="space-y-2">
-              {links.map((item) => (
-                <li key={item}>
-                  <a className="text-xs text-taupe transition hover:text-bronze" href="/">
-                    {item}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+
+      <nav className="site-footer__categories" aria-label="Footer categories">
+        <p className="site-footer__section-title">Categories</p>
+        <ul className="site-footer__category-list">
+          {categoryLinks.map((item) => (
+            <li key={item.label}>
+              <FooterLink item={item} className="site-footer__category-link" />
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div className="site-footer__company">
+        <p className="site-footer__section-title">Company</p>
+        <div className="site-footer__company-columns">
+          <ul className="site-footer__company-list">
+            {companyLinksColOne.map((item) => (
+              <li key={item.label}>
+                <FooterLink item={item} className="site-footer__company-link" />
+              </li>
+            ))}
+          </ul>
+          <ul className="site-footer__company-list">
+            {companyLinksColTwo.map((item) => (
+              <li key={item.label}>
+                <FooterLink item={item} className="site-footer__company-link" />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
-    <div className="border-t border-ink/10 py-4 text-center text-[0.62rem] uppercase tracking-[0.2em] text-taupe">
-      Privacy Policy · Terms & Conditions · Editorial Standards
+
+    <div className="site-footer__copyright">
+      © 2026 Sassy Strides
     </div>
   </footer>
 );

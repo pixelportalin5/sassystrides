@@ -27,10 +27,7 @@ const CategoryBanner = ({
           Skyscraper
         </p>
         <h3 className="serif-title mt-8 text-4xl uppercase leading-none text-espresso">{brand}</h3>
-        <Link
-          to={href}
-          className="mt-5 inline-block bg-espresso px-5 py-3 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-porcelain transition hover:bg-bronze"
-        >
+        <Link to={href} className="btn-cta btn-cta--primary mt-5">
           {action}
         </Link>
         {image && (
@@ -76,7 +73,7 @@ const CategoryBanner = ({
         )}
         <div className="p-5">
           <h3 className="serif-title text-4xl uppercase leading-none text-espresso">{brand}</h3>
-          <span className="mt-4 inline-block bg-espresso px-5 py-3 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-porcelain">
+          <span className="btn-cta btn-cta--primary mt-4">
             {action}
           </span>
         </div>
@@ -124,10 +121,7 @@ const CategoryBanner = ({
           />
         )}
       </Link>
-      <Link
-        to={href}
-        className="hidden place-items-center bg-espresso px-5 text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-porcelain transition hover:bg-bronze md:grid"
-      >
+      <Link to={href} className="btn-cta btn-cta--primary hidden md:grid">
         {action}
       </Link>
     </section>
