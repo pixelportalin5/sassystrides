@@ -5,32 +5,32 @@ const categoryTiles = [
   {
     name: 'Fashion',
     slug: 'fashion',
-    description: 'Latest trends, runway highlights, and wardrobe essentials.',
+    description: 'Runway, Street Style & Luxury Looks',
     span: 'third',
   },
   {
     name: 'Beauty',
     slug: 'beauty',
-    description: 'Skincare, makeup, and beauty routines for every look.',
+    description: 'Expert Tips, Reviews & New Trends',
     span: 'third',
   },
   {
     name: 'Lifestyle',
     slug: 'lifestyle',
-    description: 'Travel, culture, and everyday elegance.',
+    description: 'Style for Every Part of Your Life',
     span: 'third',
   },
   {
     name: 'Trends',
     slug: 'trends',
-    description: 'Seasonal trends and fashion-forward edits.',
-    span: 'half',
+    description: "What's New, What's Next",
+    span: 'wide',
   },
   {
     name: 'News',
     slug: 'news',
-    description: 'Industry news, events, and latest updates.',
-    span: 'half',
+    description: 'Events, Celebrities & Industry Updates',
+    span: 'narrow',
   },
 ];
 
@@ -71,10 +71,10 @@ const CategoryGrid = ({ posts = [], categories = [] }) => {
           )}
           <div className="homepage-category-grid__overlay" />
           <div className="homepage-category-grid__content">
-            <p className="serif-title text-3xl uppercase leading-none text-porcelain sm:text-4xl">
+            <p className="homepage-category-grid__title serif-title text-3xl uppercase leading-none text-porcelain sm:text-4xl">
               {tile.name}
             </p>
-            <p className="mt-3 max-w-xs text-xs leading-5 text-porcelain/78">
+            <p className="homepage-category-grid__description mt-3 max-w-xs text-xs leading-5 text-porcelain/82">
               {tile.description}
             </p>
             <span className="homepage-category-grid__cta">

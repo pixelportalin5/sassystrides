@@ -107,6 +107,16 @@ export const getAdsUrl = (scope = 'category') => {
   return null;
 };
 
+export const getSearchUrl = (query) => {
+  const encoded = encodeURIComponent(query.trim());
+
+  if (useProxyApi()) {
+    return `/api/search?q=${encoded}`;
+  }
+
+  return `/wp-json/wp/v2/posts?search=${encoded}&per_page=8&_fields=id,slug,title`;
+};
+
 export const fetchPostsApi = async (category) => {
   const url = getPostsUrl(category);
   const cacheKey = category ? `posts:category:${category}` : 'posts:homepage';
@@ -126,4 +136,25 @@ export const fetchAdsApi = async (scope = 'category') => {
   }
 
   return requestJson(`ads-${scope}`, url, { cacheKey: `ads:${scope}` });
+};
+
+export const fetchSearchApi = async (query) => {
+  const trimmed = query.trim();
+
+  if (trimmed.length < 2) {
+    return [];
+  }
+
+  const url = getSearchUrl(trimmed);
+  const data = await requestJson('search-posts', url, {
+    cacheKey: `search:${trimmed.toLowerCase()}`,
+  });
+
+  const items = Array.isArray(data) ? data : data?.posts || [];
+
+  return items.map((item) => ({
+    id: item.id,
+    slug: item.slug || '',
+    title: item.title?.rendered || item.title || '',
+  }));
 };

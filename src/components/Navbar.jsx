@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { LOGO_URL } from '../constants/subcategories';
 import { prefetchCategoryData } from '../services/categoryQueries';
+import HeaderSearch from './HeaderSearch';
 import HeaderSocialLinks from './HeaderSocialLinks';
 
 const navItems = [
@@ -56,7 +57,10 @@ const Navbar = () => {
           />
         </Link>
 
-        <HeaderSocialLinks />
+        <div className="site-header__top-actions">
+          <HeaderSearch />
+          <HeaderSocialLinks />
+        </div>
       </div>
 
       <nav className="site-header__nav" aria-label="Primary">

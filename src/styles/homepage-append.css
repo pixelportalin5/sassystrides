@@ -1,0 +1,474 @@
+.hp-append {
+  background-color: #f8f5f0;
+  color: #14110f;
+}
+
+.hp-append__section {
+  padding-block: 48px;
+}
+
+.hp-append__container {
+  width: min(100%, 1440px);
+  max-width: 1440px;
+  padding-inline: 40px;
+  margin-inline: auto;
+}
+
+/* Section 1 — Fashion Cities */
+
+.hp-append__section--cities {
+  padding-top: 48px;
+}
+
+.hp-append__cities-banner {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+
+.hp-append__cities-banner .lazy-ad-slot,
+.hp-append__cities-banner .ad-slot,
+.hp-append__cities-banner .ad-banner,
+.hp-append__cities-banner .ad-banner__frame {
+  width: 100%;
+  height: 220px;
+  max-height: 250px;
+  overflow: hidden;
+}
+
+.hp-append__cities-banner .ad-slot__image,
+.hp-append__cities-banner .ad-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hp-append__cities-title {
+  margin-bottom: 24px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #14110f;
+}
+
+.hp-append__cities-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .hp-append__cities-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+.hp-append__city-card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  text-decoration: none;
+}
+
+.hp-append__city-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.hp-append__city-card:hover .hp-append__city-image {
+  transform: scale(1.05);
+}
+
+.hp-append__city-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(20, 17, 15, 0.72), transparent 55%);
+}
+
+.hp-append__city-name {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 12px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #fffaf1;
+}
+
+.hp-append__cities-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 20px;
+  width: 100%;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8b5e3c;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.hp-append__cities-view-all:hover {
+  color: #6f4a2f;
+}
+
+/* Section 2 — Sponsored Story */
+
+.hp-append__sponsored {
+  padding-block: 0;
+}
+
+.hp-append__sponsored-banner {
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  max-height: 260px;
+  border-block: 1px solid rgba(20, 17, 15, 0.1);
+  background: #14110f;
+}
+
+.hp-append__sponsored-layout {
+  display: grid;
+  min-height: 220px;
+  max-height: 260px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 768px) {
+  .hp-append__sponsored-layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+}
+
+.hp-append__sponsored-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 32px 40px;
+  color: #fffaf1;
+}
+
+.hp-append__sponsored-badge {
+  margin-bottom: 12px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #e7d5b8;
+}
+
+.hp-append__sponsored-headline {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #fffaf1;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.hp-append__sponsored-headline:hover {
+  color: #e7d5b8;
+}
+
+.hp-append__sponsored-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 16px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #e7d5b8;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.hp-append__sponsored-cta:hover {
+  color: #fffaf1;
+}
+
+.hp-append__sponsored-image-wrap {
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+}
+
+.hp-append__sponsored-image {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  max-height: 260px;
+  object-fit: cover;
+}
+
+.hp-append__sponsored-ad {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  max-height: 260px;
+  overflow: hidden;
+}
+
+.hp-append__sponsored-ad .ad-slot,
+.hp-append__sponsored-ad .ad-banner,
+.hp-append__sponsored-ad .ad-banner__frame {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  max-height: 260px;
+}
+
+.hp-append__sponsored-ad img {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  max-height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Section 3 — Newsletter */
+
+.hp-append__section--newsletter {
+  padding-top: 48px;
+}
+
+.hp-append__newsletter-banner {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+
+.hp-append__newsletter-banner .lazy-ad-slot,
+.hp-append__newsletter-banner .ad-slot,
+.hp-append__newsletter-banner .ad-banner,
+.hp-append__newsletter-banner .ad-banner__frame {
+  width: 100%;
+  height: 220px;
+  max-height: 250px;
+  overflow: hidden;
+}
+
+.hp-append__newsletter-banner .ad-slot__image,
+.hp-append__newsletter-banner .ad-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hp-append__newsletter-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 32px;
+  border: 1px solid rgba(20, 17, 15, 0.1);
+  background: rgba(255, 250, 241, 0.85);
+  text-align: center;
+}
+
+.hp-append__newsletter-eyebrow {
+  margin-bottom: 12px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8b5e3c;
+}
+
+.hp-append__newsletter-title {
+  max-width: 28rem;
+  margin-inline: auto;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2rem, 3.2vw, 3rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #14110f;
+}
+
+.hp-append__newsletter-description {
+  max-width: 32rem;
+  margin-inline: auto;
+  margin-top: 16px;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: rgba(20, 17, 15, 0.68);
+}
+
+.hp-append__newsletter-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 32rem;
+  margin-top: 24px;
+  margin-inline: auto;
+}
+
+@media (min-width: 640px) {
+  .hp-append__newsletter-input-row {
+    flex-direction: row;
+  }
+}
+
+.hp-append__newsletter-input {
+  min-height: 48px;
+  flex: 1;
+  border: 1px solid rgba(20, 17, 15, 0.15);
+  background: #fffaf1;
+  padding-inline: 16px;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.hp-append__newsletter-submit {
+  min-height: 48px;
+  padding-inline: 24px;
+  border: 0;
+  background: #8b5e3c;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fffaf1;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.hp-append__newsletter-submit:hover {
+  background: #6f4a2f;
+}
+
+/* Section 4 — Instagram */
+
+.hp-append__instagram-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(20, 17, 15, 0.1);
+  padding-bottom: 12px;
+}
+
+.hp-append__instagram-title {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #14110f;
+}
+
+.hp-append__instagram-handle {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(20, 17, 15, 0.55);
+}
+
+.hp-append__instagram-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .hp-append__instagram-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hp-append__instagram-grid {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+}
+
+.hp-append__instagram-item {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: #efe4d2;
+}
+
+.hp-append__instagram-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.hp-append__instagram-item:hover .hp-append__instagram-image {
+  transform: scale(1.06);
+}
+
+/* Section 5 — Brand Strip */
+
+.hp-append__brand-strip {
+  background: #14110f;
+  padding-block: 32px;
+}
+
+.hp-append__brand-strip-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.5rem, 3.5vw, 3rem);
+  min-height: 90px;
+}
+
+.hp-append__brand-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-width: 5.5rem;
+}
+
+.hp-append__brand-mark {
+  display: block;
+  height: 1.75rem;
+  width: auto;
+  min-width: 3.5rem;
+  color: rgba(255, 250, 241, 0.92);
+}
+
+.hp-append__brand-name {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255, 250, 241, 0.72);
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .hp-append__container {
+    padding-inline: 20px;
+  }
+
+  .hp-append__section {
+    padding-block: 32px;
+  }
+}

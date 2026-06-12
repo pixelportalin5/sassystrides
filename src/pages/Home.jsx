@@ -9,6 +9,7 @@ import HomepageCategorySection from '../components/HomepageCategorySection';
 import Navbar from '../components/Navbar';
 import HomeSkeleton from '../components/skeletons/HomeSkeleton';
 import StyleMoodCarousel from '../components/StyleMoodCarousel';
+import HomepageAppendSections from '../components/homepage-append/HomepageAppendSections';
 import { usePosts } from '../hooks/usePosts';
 import { validateAllConfiguredAds } from '../services/advancedAdsService';
 
@@ -54,7 +55,6 @@ const Home = () => {
         <HomepageCategorySection
           posts={posts.slice(3, 14)}
           categories={categories}
-          blogPosts={posts.slice(0, 6)}
         />
 
         <div className="editorial-container homepage-featured-section">
@@ -69,6 +69,8 @@ const Home = () => {
 
         <HomepageCategoryDirectory posts={posts.slice(0, 5)} />
       </main>
+
+      <HomepageAppendSections posts={posts} />
 
       <Footer />
     </div>

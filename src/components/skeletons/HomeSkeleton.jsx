@@ -28,29 +28,29 @@ const HomeSkeleton = () => (
 
       <div className="editorial-container space-y-10 py-10">
         <Pulse className="h-28 w-full" />
-        <div className="homepage-category-section__layout">
-          <div className="space-y-4">
-            <div className="homepage-category-grid">
-              {[0, 1, 2, 3, 4].map((item) => (
-                <Pulse
-                  key={item}
-                  className={`homepage-category-grid__tile min-h-[220px] ${
-                    item < 3
-                      ? 'homepage-category-grid__tile--third'
-                      : 'homepage-category-grid__tile--half'
-                  }`}
-                />
-              ))}
+        <div className="homepage-category-section editorial-container">
+          <div className="homepage-category-section__layout">
+            <div className="homepage-category-section__main">
+              <div className="homepage-category-grid">
+                {[0, 1, 2, 3, 4].map((item) => (
+                  <Pulse
+                    key={item}
+                    className={`homepage-category-grid__tile min-h-[220px] ${
+                      item < 3
+                        ? 'homepage-category-grid__tile--third'
+                        : item === 3
+                          ? 'homepage-category-grid__tile--wide'
+                          : 'homepage-category-grid__tile--narrow'
+                    }`}
+                  />
+                ))}
+              </div>
+              <Pulse className="h-[250px] w-full" />
             </div>
-            <Pulse className="h-24 w-full" />
-            <div className="homepage-category-section__layout homepage-category-section__layout--billboard">
-              <Pulse className="h-24 w-full" />
-              <Pulse className="hidden min-h-[280px] lg:block" />
+            <div className="homepage-category-section__sidebar hidden lg:flex">
+              <Pulse className="min-h-[280px] w-full flex-1" />
+              <Pulse className="min-h-[280px] w-full flex-1" />
             </div>
-          </div>
-          <div className="hidden space-y-4 lg:block">
-            <Pulse className="h-[420px] w-full" />
-            <Pulse className="h-[420px] w-full" />
           </div>
         </div>
       </div>

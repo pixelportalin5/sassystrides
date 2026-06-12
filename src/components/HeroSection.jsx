@@ -17,7 +17,7 @@ const HeroSection = memo(({ posts = [] }) => {
   }
 
   return (
-    <section className="hero-section editorial-container grid border-x border-b border-ink/10 bg-paper-grain lg:grid-cols-[1.02fr_1.48fr_0.82fr]">
+    <section className="hero-section editorial-container grid border-x border-b border-ink/10 bg-paper-grain">
       <div className="hero-section__content border-b border-ink/10 px-8 sm:px-10 lg:border-b-0 lg:border-r xl:px-12">
         <p className="micro-label mb-4 text-bronze sm:mb-5">Inspire. Elevate. Empower.</p>
         <Link to={`/blog/${hero.slug}`} className="hero-section__headline-link">
@@ -40,42 +40,44 @@ const HeroSection = memo(({ posts = [] }) => {
 
       <Link
         to={`/blog/${hero.slug}`}
-        className="hero-section__image group border-b border-ink/10 lg:border-b-0 lg:border-r"
+        className="hero-section__image hero-section__image-container group border-b border-ink/10 lg:border-b-0 lg:border-r"
       >
         <PostImage
           src={hero.heroImage || hero.image}
           alt={hero.imageAlt}
           srcSet={hero.imageSrcSet}
-          sizes="(min-width: 1024px) 48vw, 100vw"
+          sizes="(min-width: 1024px) 43vw, 100vw"
           priority
           className="hero-section__image-el saturate-[0.82] transition duration-700 group-hover:scale-[1.02] group-hover:saturate-100"
         />
       </Link>
 
-      <aside className="hero-section__sidebar divide-y divide-ink/10 bg-porcelain/70">
-        <div className="p-5 sm:p-6">
+      <aside className="hero-section__sidebar hero-section__sidebar-column bg-porcelain/70">
+        <div className="hero-section__sidebar-header p-5 sm:p-6">
           <p className="micro-label text-bronze">Latest Stories</p>
         </div>
-        {latestStories.map((post, index) => (
-          <Link
-            key={post.id}
-            to={`/blog/${post.slug}`}
-            className="group grid grid-cols-[2rem_1fr] gap-4 p-5 transition hover:bg-parchment/70 sm:p-6"
-          >
-            <span className="serif-title text-2xl leading-none text-ink/55">
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            <span>
-              <span className="micro-label mb-2 block text-taupe">{post.categoryName}</span>
-              <span className="serif-title block text-xl leading-none text-espresso transition group-hover:text-bronze sm:text-2xl">
-                {stripHtml(post.title.rendered)}
+        <div className="hero-section__stories-list divide-y divide-ink/10">
+          {latestStories.map((post, index) => (
+            <Link
+              key={post.id}
+              to={`/blog/${post.slug}`}
+              className="hero-section__story group grid grid-cols-[2rem_1fr] gap-4 p-5 transition hover:bg-parchment/70 sm:p-6"
+            >
+              <span className="serif-title text-2xl leading-none text-ink/55">
+                {String(index + 1).padStart(2, '0')}
               </span>
-            </span>
-          </Link>
-        ))}
+              <span className="min-w-0">
+                <span className="micro-label mb-2 block text-taupe">{post.categoryName}</span>
+                <span className="serif-title block text-xl leading-none text-espresso transition group-hover:text-bronze sm:text-2xl">
+                  {stripHtml(post.title.rendered)}
+                </span>
+              </span>
+            </Link>
+          ))}
+        </div>
         <a
           href="#featured"
-          className="btn-cta btn-cta--secondary w-full justify-between rounded-none border-x-0 border-b-0"
+          className="hero-section__view-all btn-cta btn-cta--secondary w-full justify-between rounded-none border-x-0 border-b-0"
         >
           View All Stories
           <ArrowUpRight size={15} strokeWidth={1.5} />

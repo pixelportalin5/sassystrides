@@ -10,7 +10,7 @@ const iconMap = {
 
 const HeaderSocialLinks = () => (
   <div className="site-header__social">
-    {socialLinks.map(({ label, href, followers }) => {
+    {socialLinks.map(({ label, href }) => {
       const Icon = iconMap[label];
 
       return (
@@ -20,10 +20,9 @@ const HeaderSocialLinks = () => (
           className="site-header__social-link"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${label}, ${followers} followers`}
+          aria-label={label}
         >
           <Icon size={16} strokeWidth={1.4} aria-hidden="true" />
-          <span className="site-header__social-count">{followers}</span>
         </a>
       );
     })}

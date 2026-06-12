@@ -3,6 +3,7 @@ import {
   getSassyHomepage,
   getSassyPostBySlug,
 } from './wordpressApi';
+import { fetchSearchApi } from './apiClient';
 
 export const CATEGORY_STALE_TIME = 10 * 60 * 1000;
 export const CATEGORY_CACHE_TIME = 30 * 60 * 1000;
@@ -13,6 +14,7 @@ export const categoryQueryKeys = {
   categoryPosts: (slug) => ['sassy', 'category', slug],
   postBySlug: (slug) => ['sassy', 'post', slug],
   relatedPosts: (categorySlug, slug) => ['sassy', 'related', categorySlug, slug],
+  searchPosts: (query) => ['sassy', 'search', query],
 };
 
 export const slugify = (value = '') =>
@@ -73,6 +75,29 @@ export const fetchPostBySlugQuery = async (slug) => {
   }
 
   return article;
+};
+
+export const fetchSearchPostsQuery = async (query) => {
+  const trimmed = query.trim();
+
+  if (trimmed.length < 2) {
+    return [];
+  }
+
+  const results = await timedRequest(`Search:${trimmed}`, () => fetchSearchApi(trimmed));
+  const normalizedQuery = trimmed.toLowerCase();
+
+  return results
+    .filter((post) => {
+      const title = String(post.title || '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+
+      return title.includes(normalizedQuery);
+    })
+    .slice(0, 8);
 };
 
 export const fetchRelatedPostsQuery = async ({ categorySlug, slug }, queryClient) => {
